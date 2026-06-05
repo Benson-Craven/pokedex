@@ -24,3 +24,11 @@ export type PokemonListResponse = {
   previous: string | null;
   results: PokemonListItem[];
 };
+
+export type SquadPokemonDetails = {
+  id: number;
+  name: string;
+  sprites: {
+    front_default: string | null;
+  };
+};

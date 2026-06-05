@@ -3,9 +3,10 @@ import type { PokemonDetails } from "../types/pokemon";
 type PokemonCardProps = {
   pokemon: PokemonDetails;
   onClear: () => void;
+  onAdd: () => void;
 };
 
-const PokemonCard = ({ pokemon, onClear }: PokemonCardProps) => {
+const PokemonCard = ({ pokemon, onClear, onAdd }: PokemonCardProps) => {
   return (
     <article className="relative w-full max-w-sm rounded-xl border-4 border-pokemon-dark-blue p-5 uppercase text-pokemon-dark-blue shadow-[6px_6px_0_#003a70]">
       <button
@@ -52,6 +53,12 @@ const PokemonCard = ({ pokemon, onClear }: PokemonCardProps) => {
             {pokemon.type.name}
           </span>
         ))}
+        <button
+          className="rounded-full border-2 border-pokemon-dark-blue bg-lime-500 px-3 py-1 text-sm font-bold uppercase text-white shadow-[2px_2px_0_#003a70] cursor-pointer justify-items-end"
+          onClick={onAdd}
+        >
+          Add
+        </button>
       </div>
     </article>
   );

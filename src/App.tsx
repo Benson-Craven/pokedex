@@ -6,9 +6,13 @@ import type {
   PokemonListResponse,
 } from "./types/pokemon";
 import PokemonSearchBar from "./components/PokemonSearchBar";
+import PokemonSquadCard, {
+  EmptySquadSlot,
+} from "./components/PokemonSquadCard";
 
 function App() {
   const [pokemon, setPokemon] = useState<PokemonListItem[]>([]);
+  const [squadPokemon, setSquadPokemon] = useState<PokemonDetails[]>([]);
   const [selectedPokemon, setSelectedPokemon] = useState<PokemonDetails | null>(
     null,
   );
@@ -114,6 +118,26 @@ function App() {
     }
   }
 
+  function addToSquad(pokemonToAdd: PokemonDetails) {
+    setSquadPokemon((currentSquad) => {
+      const alreadyAdded = currentSquad.some(
+        (pokemon) => pokemon.id === pokemonToAdd.id,
+      );
+
+      if (alreadyAdded || currentSquad.length >= 6) {
+        return currentSquad;
+      }
+
+      return [...currentSquad, pokemonToAdd];
+    });
+  }
+
+  function removeFromSquad(pokemonId: number) {
+    setSquadPokemon((currentSquad) =>
+      currentSquad.filter((pokemon) => pokemon.id !== pokemonId),
+    );
+  }
+
   if (isListLoading) {
     return <p>Loading...</p>;
   }
@@ -129,6 +153,7 @@ function App() {
         pokemon.name.toLowerCase().includes(searchPokemon.toLowerCase()),
       )
     : pokemon;
+  const emptySquadSlots = Array.from({ length: 6 - squadPokemon.length });
 
   return (
     <main className="min-h-screen bg-pokemon-bg text-pokemon-black ">
@@ -157,6 +182,40 @@ function App() {
           onClear={() => setSearchPokemon("")}
         />
 
+        <section className="w-full rounded-xl border-4 border-pokemon-dark-blue bg-sky-200 p-4 text-pokemon-dark-blue shadow-[6px_6px_0_#003a70] sm:p-6">
+          <div className="mb-4 flex flex-col gap-3 uppercase sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-xs font-black tracking-widest text-pokemon-blue">
+                Battle ready roster
+              </p>
+              <h2 className="font-pokemon-solid text-3xl tracking-wide text-pokemon-yellow pokemon-title-shadow">
+                My Team
+              </h2>
+            </div>
+            <p className="w-fit rounded-full border-2 border-pokemon-dark-blue bg-white px-4 py-2 text-sm font-black shadow-[2px_2px_0_#003a70]">
+              {squadPokemon.length}/6 selected
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {squadPokemon.map((pokemon, index) => (
+              <PokemonSquadCard
+                key={pokemon.id}
+                pokemon={pokemon}
+                slotNumber={index + 1}
+                onRemove={() => removeFromSquad(pokemon.id)}
+              />
+            ))}
+
+            {emptySquadSlots.map((_, index) => (
+              <EmptySquadSlot
+                key={`empty-${index}`}
+                slotNumber={squadPokemon.length + index + 1}
+              />
+            ))}
+          </div>
+        </section>
+
         <div className="flex w-full flex-col items-center gap-6 lg:flex-row lg:items-start lg:justify-center">
           {detailsLoading && <p>Loading Pokémon details...</p>}
           {detailsError && <p>Error! {detailsError.message}</p>}
@@ -165,6 +224,7 @@ function App() {
             <PokemonCard
               pokemon={selectedPokemon}
               onClear={() => setSelectedPokemon(null)}
+              onAdd={() => addToSquad(selectedPokemon)}
             />
           )}
 
