@@ -64,4 +64,32 @@ const PokemonCard = ({ pokemon, onClear, onAdd }: PokemonCardProps) => {
   );
 };
 
+export const PokemonCardSkeleton = () => {
+  return (
+    <article className="relative w-full max-w-sm animate-pulse rounded-xl border-4 border-pokemon-dark-blue p-5 uppercase text-pokemon-dark-blue shadow-[6px_6px_0_#003a70]">
+      <div className="absolute right-3 top-3 h-8 w-8 rounded-full border-2 border-pokemon-dark-blue bg-slate-200" />
+
+      <div className="mb-4 rounded-lg border-4 border-pokemon-dark-blue bg-pokemon-yellow px-4 py-3 shadow-[3px_3px_0_#003a70]">
+        <div className="mb-3 h-3 w-16 rounded bg-slate-200" />
+        <div className="h-8 w-40 rounded bg-slate-200" />
+      </div>
+
+      <div className="mb-4 rounded-lg border-4 border-pokemon-dark-blue bg-pokemon-bg shadow-inner">
+        <div className="mx-auto h-36 w-36 rounded-full bg-slate-200" />
+      </div>
+
+      <div className="mb-4 grid grid-cols-2 gap-3">
+        <div className="h-10 rounded-lg border-2 border-pokemon-dark-blue bg-slate-200" />
+        <div className="h-10 rounded-lg border-2 border-pokemon-dark-blue bg-slate-200" />
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        <div className="h-8 w-20 rounded-full border-2 border-pokemon-dark-blue bg-slate-200" />
+        <div className="h-8 w-24 rounded-full border-2 border-pokemon-dark-blue bg-slate-200" />
+        <div className="h-8 w-16 rounded-full border-2 border-pokemon-dark-blue bg-slate-200" />
+      </div>
+    </article>
+  );
+};
+
 export default PokemonCard;

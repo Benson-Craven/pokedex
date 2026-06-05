@@ -1,14 +1,14 @@
 import { useState, useEffect, useRef } from "react";
-import PokemonCard from "./components/PokemonCard";
-import type {
-  PokemonDetails,
-  PokemonListItem,
-  PokemonListResponse,
-} from "./types/pokemon";
+
+import PokemonCard, { PokemonCardSkeleton } from "./components/PokemonCard";
 import PokemonSearchBar from "./components/PokemonSearchBar";
 import PokemonSquadCard, {
   EmptySquadSlot,
 } from "./components/PokemonSquadCard";
+
+import { getPokemonDetails, getPokemonList } from "./api/pokemon";
+import type { PokemonDetails, PokemonListItem } from "./types/pokemon";
+import PokemonList from "./components/PokemonList";
 
 function App() {
   const [pokemon, setPokemon] = useState<PokemonListItem[]>([]);
@@ -18,16 +18,20 @@ function App() {
   );
   const [searchPokemon, setSearchPokemon] = useState<string>("");
   const [pokedex, setPokedex] = useState<PokemonListItem[]>([]);
+  const [nextUrl, setNextUrl] = useState<string | null>(null);
+  const [previousUrl, setPreviousUrl] = useState<string | null>(null);
+
   const [detailsLoading, setDetailsLoading] = useState(false);
-  const [detailsError, setDetailsError] = useState<Error | null>(null);
   const [isListLoading, setListLoading] = useState(true);
   const [isPokedexLoading, setPokedexLoading] = useState(true);
 
-  const [error, setError] = useState<Error | null>(null);
+  const [detailsError, setDetailsError] = useState<Error | null>(null);
+  const [listError, setListError] = useState<Error | null>(null);
+  const [pokedexError, setPokedexError] = useState<Error | null>(null);
 
-  const [nextUrl, setNextUrl] = useState<string | null>(null);
-  const [previousUrl, setPreviousUrl] = useState<string | null>(null);
   const detailsAbortController = useRef<AbortController | null>(null);
+
+  const isInitialListLoading = isListLoading && pokemon.length === 0;
 
   useEffect(() => {
     fetchPokemonList("https://pokeapi.co/api/v2/pokemon?limit=20");
@@ -36,23 +40,15 @@ function App() {
 
   async function fetchPokemonList(url: string) {
     setListLoading(true);
-    setError(null);
-
+    setListError(null);
     try {
-      const res = await fetch(url);
-
-      if (!res.ok) {
-        throw new Error(`Failed to fetch any Pokemon`);
-      }
-
-      const data: PokemonListResponse = await res.json();
-
+      const data = await getPokemonList(url);
       setPokemon(data.results);
       setNextUrl(data.next);
       setPreviousUrl(data.previous);
     } catch (err) {
       const e = err instanceof Error ? err : new Error(String(err));
-      setError(e);
+      setListError(e);
     } finally {
       setListLoading(false);
     }
@@ -60,21 +56,15 @@ function App() {
 
   async function fetchPokedex(url: string) {
     setPokedexLoading(true);
-    setError(null);
+    setPokedexError(null);
 
     try {
-      const res = await fetch(url);
-
-      if (!res.ok) {
-        throw new Error(`Failed to fetch any Pokemon`);
-      }
-
-      const data: PokemonListResponse = await res.json();
+      const data = await getPokemonList(url);
 
       setPokedex(data.results);
     } catch (err) {
       const e = err instanceof Error ? err : new Error(String(err));
-      setError(e);
+      setPokedexError(e);
     } finally {
       setPokedexLoading(false);
     }
@@ -91,13 +81,7 @@ function App() {
     setSelectedPokemon(null);
 
     try {
-      const res = await fetch(url, { signal: controller.signal });
-
-      if (!res.ok) {
-        throw new Error(`Failed to fetch Pokemon details`);
-      }
-
-      const data: PokemonDetails = await res.json();
+      const data = await getPokemonDetails(url, controller.signal);
 
       if (detailsAbortController.current === controller) {
         setSelectedPokemon(data);
@@ -138,12 +122,12 @@ function App() {
     );
   }
 
-  if (isListLoading) {
+  if (isInitialListLoading) {
     return <p>Loading...</p>;
   }
 
-  if (error) {
-    return <p>Error! {error.message}</p>;
+  if (listError) {
+    return <p>Error! {listError.message}</p>;
   }
 
   const isSearching = searchPokemon.trim() !== "";
@@ -217,7 +201,7 @@ function App() {
         </section>
 
         <div className="flex w-full flex-col items-center gap-6 lg:flex-row lg:items-start lg:justify-center">
-          {detailsLoading && <p>Loading Pokémon details...</p>}
+          {detailsLoading && <PokemonCardSkeleton />}
           {detailsError && <p>Error! {detailsError.message}</p>}
 
           {selectedPokemon && (
@@ -228,44 +212,32 @@ function App() {
             />
           )}
 
-          <div className="flex w-full max-w-2xl flex-col gap-5">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {isSearching && isPokedexLoading ? (
-                <p>Loading Pokédex...</p>
-              ) : filteredPokemon.length === 0 ? (
-                <p>Try another Pokémon...</p>
-              ) : (
-                filteredPokemon.map((pokemon) => (
-                  <button
-                    className="cursor-pointer rounded-xl border-4 border-pokemon-dark-blue bg-pokemon-yellow px-8 py-4 font-bold uppercase text-pokemon-dark-blue shadow-[4px_4px_0_#003a70] transition hover:-translate-y-1 hover:shadow-[6px_6px_0_#003a70]"
-                    key={pokemon.name}
-                    onClick={() => fetchPokemonDetails(pokemon.url)}
-                  >
-                    {pokemon.name}
-                  </button>
-                ))
-              )}
-            </div>
+          <PokemonList
+            pokemon={filteredPokemon}
+            isSearching={isSearching}
+            isPokedexLoading={isPokedexLoading}
+            pokedexError={pokedexError}
+            onSelectPokemon={fetchPokemonDetails}
+          />
 
-            {!isSearching && (
-              <div className="flex w-full gap-3">
-                <button
-                  disabled={!previousUrl || isListLoading}
-                  onClick={() => previousUrl && fetchPokemonList(previousUrl)}
-                  className="w-full cursor-pointer rounded-xl border-4 border-pokemon-dark-blue bg-pokemon-blue px-8 py-4 font-bold uppercase text-white shadow-[4px_4px_0_#003a70] transition hover:-translate-y-1 hover:shadow-[6px_6px_0_#003a70] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-[4px_4px_0_#003a70]"
-                >
-                  Previous
-                </button>
-                <button
-                  disabled={!nextUrl || isListLoading}
-                  onClick={() => nextUrl && fetchPokemonList(nextUrl)}
-                  className="w-full cursor-pointer rounded-xl border-4 border-pokemon-dark-blue bg-pokemon-red px-8 py-4 font-bold uppercase text-white shadow-[4px_4px_0_#003a70] transition hover:-translate-y-1 hover:shadow-[6px_6px_0_#003a70] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-[4px_4px_0_#003a70]"
-                >
-                  Next
-                </button>
-              </div>
-            )}
-          </div>
+          {!isSearching && (
+            <div className="flex w-full gap-3">
+              <button
+                disabled={!previousUrl || isListLoading}
+                onClick={() => previousUrl && fetchPokemonList(previousUrl)}
+                className="w-full cursor-pointer rounded-xl border-4 border-pokemon-dark-blue bg-pokemon-blue px-8 py-4 font-bold uppercase text-white shadow-[4px_4px_0_#003a70] transition hover:-translate-y-1 hover:shadow-[6px_6px_0_#003a70] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-[4px_4px_0_#003a70]"
+              >
+                Previous
+              </button>
+              <button
+                disabled={!nextUrl || isListLoading}
+                onClick={() => nextUrl && fetchPokemonList(nextUrl)}
+                className="w-full cursor-pointer rounded-xl border-4 border-pokemon-dark-blue bg-pokemon-red px-8 py-4 font-bold uppercase text-white shadow-[4px_4px_0_#003a70] transition hover:-translate-y-1 hover:shadow-[6px_6px_0_#003a70] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-[4px_4px_0_#003a70]"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       </section>
     </main>

@@ -90,4 +90,29 @@ export const EmptySquadSlot = ({ slotNumber }: { slotNumber: number }) => {
   );
 };
 
+export const PokemonSquadCardSkeleton = () => {
+  return (
+    <article
+      className="min-h-44 animate-pulse overflow-hidden rounded-xl border-4 border-pokemon-dark-blue bg-white p-3
+      shadow-[4px_4px_0_#003a70]"
+    >
+      <div className="mb-4 h-14 rounded-md bg-slate-200" />
+
+      <div className="flex items-end justify-between gap-3">
+        <div className="h-24 w-24 shrink-0 rounded-full border-4 border-pokemon-dark-blue bg-slate-200" />
+
+        <div className="flex flex-1 flex-col items-end gap-2">
+          <div className="h-5 w-24 rounded-full bg-slate-200" />
+          <div className="h-5 w-16 rounded-full bg-slate-200" />
+
+          <div className="grid w-full grid-cols-2 gap-1.5">
+            <div className="h-8 rounded-md bg-slate-200" />
+            <div className="h-8 rounded-md bg-slate-200" />
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+};
+
 export default PokemonSquadCard;
