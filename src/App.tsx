@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 
 import PokemonCard, { PokemonCardSkeleton } from "./components/PokemonCard";
 import PokemonSearchBar from "./components/PokemonSearchBar";
@@ -6,121 +6,61 @@ import PokemonSquadCard, {
   EmptySquadSlot,
 } from "./components/PokemonSquadCard";
 
-import { getPokemonDetails, getPokemonList } from "./api/pokemon";
-import type { PokemonDetails, PokemonListItem } from "./types/pokemon";
 import PokemonList from "./components/PokemonList";
+import { useSquad } from "./hooks/useSquad";
+import { usePokemonList } from "./hooks/usePokemonList";
+import { usePokedex } from "./hooks/usePokedex";
+import { usePokemonDetails } from "./hooks/usePokemonDetails";
 
 function App() {
-  const [pokemon, setPokemon] = useState<PokemonListItem[]>([]);
-  const [squadPokemon, setSquadPokemon] = useState<PokemonDetails[]>([]);
-  const [selectedPokemon, setSelectedPokemon] = useState<PokemonDetails | null>(
-    null,
-  );
+  // pokemon list
+  const {
+    pokemon,
+    isListLoading,
+    listError,
+    previousUrl,
+    nextUrl,
+    fetchPokemonList,
+    isInitialListLoading,
+    INITIAL_POKEMON_LIST_URL,
+  } = usePokemonList();
+
+  // squad pokemon
+  const { squadPokemon, addToSquad, removeFromSquad } = useSquad();
+
+  // pokdex
+  const {
+    pokedex,
+    isPokedexLoading,
+    pokedexError,
+    fetchPokedex,
+    INITIAL_POKEDEX_URL,
+  } = usePokedex();
+
+  // individual pokémon
+
+  const {
+    selectedPokemon,
+    detailsLoading,
+    detailsError,
+    fetchPokemonDetails,
+    setSelectedPokemon,
+  } = usePokemonDetails();
+
   const [searchPokemon, setSearchPokemon] = useState<string>("");
-  const [pokedex, setPokedex] = useState<PokemonListItem[]>([]);
-  const [nextUrl, setNextUrl] = useState<string | null>(null);
-  const [previousUrl, setPreviousUrl] = useState<string | null>(null);
 
-  const [detailsLoading, setDetailsLoading] = useState(false);
-  const [isListLoading, setListLoading] = useState(true);
-  const [isPokedexLoading, setPokedexLoading] = useState(true);
+  // initialise the abort controller to ensure repeat requests are handled correctly
 
-  const [detailsError, setDetailsError] = useState<Error | null>(null);
-  const [listError, setListError] = useState<Error | null>(null);
-  const [pokedexError, setPokedexError] = useState<Error | null>(null);
-
-  const detailsAbortController = useRef<AbortController | null>(null);
-
-  const isInitialListLoading = isListLoading && pokemon.length === 0;
-
+  // fetch the internal pokedex and the actual pokemon list
   useEffect(() => {
-    fetchPokemonList("https://pokeapi.co/api/v2/pokemon?limit=20");
-    fetchPokedex("https://pokeapi.co/api/v2/pokemon?limit=1000");
-  }, []);
-
-  async function fetchPokemonList(url: string) {
-    setListLoading(true);
-    setListError(null);
-    try {
-      const data = await getPokemonList(url);
-      setPokemon(data.results);
-      setNextUrl(data.next);
-      setPreviousUrl(data.previous);
-    } catch (err) {
-      const e = err instanceof Error ? err : new Error(String(err));
-      setListError(e);
-    } finally {
-      setListLoading(false);
-    }
-  }
-
-  async function fetchPokedex(url: string) {
-    setPokedexLoading(true);
-    setPokedexError(null);
-
-    try {
-      const data = await getPokemonList(url);
-
-      setPokedex(data.results);
-    } catch (err) {
-      const e = err instanceof Error ? err : new Error(String(err));
-      setPokedexError(e);
-    } finally {
-      setPokedexLoading(false);
-    }
-  }
-
-  async function fetchPokemonDetails(url: string) {
-    detailsAbortController.current?.abort();
-
-    const controller = new AbortController();
-    detailsAbortController.current = controller;
-
-    setDetailsLoading(true);
-    setDetailsError(null);
-    setSelectedPokemon(null);
-
-    try {
-      const data = await getPokemonDetails(url, controller.signal);
-
-      if (detailsAbortController.current === controller) {
-        setSelectedPokemon(data);
-      }
-    } catch (err) {
-      if (err instanceof DOMException && err.name === "AbortError") {
-        return;
-      }
-
-      if (detailsAbortController.current === controller) {
-        const e = err instanceof Error ? err : new Error(String(err));
-        setDetailsError(e);
-      }
-    } finally {
-      if (detailsAbortController.current === controller) {
-        setDetailsLoading(false);
-      }
-    }
-  }
-
-  function addToSquad(pokemonToAdd: PokemonDetails) {
-    setSquadPokemon((currentSquad) => {
-      const alreadyAdded = currentSquad.some(
-        (pokemon) => pokemon.id === pokemonToAdd.id,
-      );
-
-      if (alreadyAdded || currentSquad.length >= 6) {
-        return currentSquad;
-      }
-
-      return [...currentSquad, pokemonToAdd];
-    });
-  }
-
-  function removeFromSquad(pokemonId: number) {
-    setSquadPokemon((currentSquad) =>
-      currentSquad.filter((pokemon) => pokemon.id !== pokemonId),
-    );
-  }
+    fetchPokemonList(INITIAL_POKEMON_LIST_URL);
+    fetchPokedex(INITIAL_POKEDEX_URL);
+  }, [
+    fetchPokemonList,
+    fetchPokedex,
+    INITIAL_POKEDEX_URL,
+    INITIAL_POKEMON_LIST_URL,
+  ]);
 
   if (isInitialListLoading) {
     return <p>Loading...</p>;
