@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { PokemonDetails } from "../types/pokemon";
 import { getPokemonDetails } from "../api/pokemon";
 
@@ -9,6 +9,12 @@ export function usePokemonDetails() {
   const [detailsLoading, setDetailsLoading] = useState(false);
   const [detailsError, setDetailsError] = useState<Error | null>(null);
   const detailsAbortController = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    return () => {
+      detailsAbortController.current?.abort();
+    };
+  }, []);
 
   async function fetchPokemonDetails(url: string) {
     detailsAbortController.current?.abort();

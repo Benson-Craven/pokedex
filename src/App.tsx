@@ -47,6 +47,12 @@ function App() {
     setSelectedPokemon,
   } = usePokemonDetails();
 
+  const isSelectedPokemonInSquad = selectedPokemon
+    ? squadPokemon.some((pokemon) => pokemon.id === selectedPokemon.id)
+    : false;
+
+  const isSquadFull = squadPokemon.length >= 6;
+
   const [searchPokemon, setSearchPokemon] = useState<string>("");
 
   // initialise the abort controller to ensure repeat requests are handled correctly
@@ -149,6 +155,13 @@ function App() {
               pokemon={selectedPokemon}
               onClear={() => setSelectedPokemon(null)}
               onAdd={() => addToSquad(selectedPokemon)}
+              squadStatus={
+                isSelectedPokemonInSquad
+                  ? "added"
+                  : isSquadFull
+                    ? "full"
+                    : "available"
+              }
             />
           )}
 

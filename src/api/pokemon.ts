@@ -2,8 +2,9 @@ import type { PokemonListResponse, PokemonDetails } from "../types/pokemon";
 
 export async function getPokemonList(
   url: string,
+  signal?: AbortSignal,
 ): Promise<PokemonListResponse> {
-  const res = await fetch(url);
+  const res = await fetch(url, { signal });
 
   if (!res.ok) {
     throw new Error("Failed to fetch Pokémon list");

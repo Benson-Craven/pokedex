@@ -1,12 +1,37 @@
 import type { PokemonDetails } from "../types/pokemon";
 
+type SquadStatus = "available" | "added" | "full";
+
 type PokemonCardProps = {
   pokemon: PokemonDetails;
   onClear: () => void;
   onAdd: () => void;
+  squadStatus: SquadStatus;
 };
 
-const PokemonCard = ({ pokemon, onClear, onAdd }: PokemonCardProps) => {
+const addButtonLabelByStatus = {
+  available: "Add",
+  added: "Added",
+  full: "Team full",
+};
+
+const addButtonClassByStatus = {
+  available:
+    "bg-lime-500 text-white hover:-translate-y-0.5 hover:shadow-[3px_3px_0_#003a70] cursor-pointer",
+  added: "bg-slate-300 text-pokemon-dark-blue cursor-not-allowed opacity-80",
+  full: "bg-pokemon-red text-white cursor-not-allowed opacity-80",
+};
+
+const PokemonCard = ({
+  pokemon,
+  onClear,
+  onAdd,
+  squadStatus,
+}: PokemonCardProps) => {
+  const canAdd = squadStatus === "available";
+  const addButtonLabel = addButtonLabelByStatus[squadStatus];
+  const addButtonClass = addButtonClassByStatus[squadStatus];
+
   return (
     <article className="relative w-full max-w-sm rounded-xl border-4 border-pokemon-dark-blue p-5 uppercase text-pokemon-dark-blue shadow-[6px_6px_0_#003a70]">
       <button
@@ -54,10 +79,11 @@ const PokemonCard = ({ pokemon, onClear, onAdd }: PokemonCardProps) => {
           </span>
         ))}
         <button
-          className="rounded-full border-2 border-pokemon-dark-blue bg-lime-500 px-3 py-1 text-sm font-bold uppercase text-white shadow-[2px_2px_0_#003a70] cursor-pointer justify-items-end"
+          className={`rounded-full border-2 border-pokemon-dark-blue px-3 py-1 text-sm font-bold uppercase shadow-[2px_2px_0_#003a70] transition ${addButtonClass}`}
+          disabled={!canAdd}
           onClick={onAdd}
         >
-          Add
+          {addButtonLabel}
         </button>
       </div>
     </article>
