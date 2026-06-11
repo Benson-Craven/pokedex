@@ -11,6 +11,21 @@ import { useSquad } from "./hooks/useSquad";
 import { usePokemonList } from "./hooks/usePokemonList";
 import { usePokedex } from "./hooks/usePokedex";
 import { usePokemonDetails } from "./hooks/usePokemonDetails";
+import type { PokemonDetails, PokemonListItem } from "./types/pokemon";
+
+function isPokemonInSquad(pokemonId: number, squadPokemon: PokemonDetails[]) {
+  return squadPokemon.some((pokemon) => pokemon.id === pokemonId);
+}
+
+function isSquadFull(squadPokemon: PokemonDetails[]) {
+  return squadPokemon.length >= 6;
+}
+
+function filterPokemonByName(pokemon: PokemonListItem[], searchTerm: string) {
+  return pokemon.filter((item) =>
+    item.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+}
 
 function App() {
   // pokemon list
@@ -48,10 +63,10 @@ function App() {
   } = usePokemonDetails();
 
   const isSelectedPokemonInSquad = selectedPokemon
-    ? squadPokemon.some((pokemon) => pokemon.id === selectedPokemon.id)
+    ? isPokemonInSquad(selectedPokemon.id, squadPokemon)
     : false;
 
-  const isSquadFull = squadPokemon.length >= 6;
+  const squadIsFull = isSquadFull(squadPokemon);
 
   const [searchPokemon, setSearchPokemon] = useState<string>("");
 
@@ -79,9 +94,7 @@ function App() {
   const isSearching = searchPokemon.trim() !== "";
 
   const filteredPokemon = isSearching
-    ? pokedex.filter((pokemon) =>
-        pokemon.name.toLowerCase().includes(searchPokemon.toLowerCase()),
-      )
+    ? filterPokemonByName(pokedex, searchPokemon)
     : pokemon;
   const emptySquadSlots = Array.from({ length: 6 - squadPokemon.length });
 
@@ -158,7 +171,7 @@ function App() {
               squadStatus={
                 isSelectedPokemonInSquad
                   ? "added"
-                  : isSquadFull
+                  : squadIsFull
                     ? "full"
                     : "available"
               }
