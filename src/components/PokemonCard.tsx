@@ -1,5 +1,6 @@
 import type { PokemonDetails } from "../types/pokemon";
-import { getPokemonTypeClassName } from "../utils/pokemonTypeStyles";
+
+import PokemonTypeBadge from "./PokemonTypeBadge";
 
 type SquadStatus = "available" | "added" | "full";
 
@@ -71,13 +72,11 @@ const PokemonCard = ({
       </div>
 
       <div className="flex flex-wrap gap-2">
-        {pokemon.types.map((pokemon) => (
-          <span
-            key={pokemon.type.name}
-            className={getPokemonTypeClassName(pokemon.type.name)}
-          >
-            {pokemon.type.name}
-          </span>
+        {pokemon.types.map((pokemonType) => (
+          <PokemonTypeBadge
+            key={pokemonType.type.name}
+            typeName={pokemonType.type.name}
+          />
         ))}
         <button
           className={`rounded-full border-2 border-pokemon-dark-blue px-3 py-1 text-sm font-bold uppercase shadow-[2px_2px_0_#003a70] transition ${addButtonClass}`}

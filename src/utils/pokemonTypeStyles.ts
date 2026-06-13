@@ -1,5 +1,12 @@
+export type TypeBadgeVariant = "default" | "compact";
+
 const baseTypeClassName =
-  "rounded-full border-2 border-pokemon-dark-blue px-3 py-1 text-sm font-bold uppercase shadow-[2px_2px_0_#003a70]";
+  "rounded-full border-2 border-pokemon-dark-blue font-bold uppercase shadow-[2px_2px_0_#003a70]";
+
+const typeBadgeSizeClassByVariant = {
+  default: "px-3 py-1 text-sm",
+  compact: "px-2 py-0.5 text-[0.65rem]",
+};
 
 const typeClassByName: Record<string, string> = {
   normal: "bg-stone-400 text-pokemon-dark-blue",
@@ -22,9 +29,12 @@ const typeClassByName: Record<string, string> = {
   fairy: "bg-pink-200 text-pokemon-dark-blue",
 };
 
-export function getPokemonTypeClassName(typeName: string) {
+export function getPokemonTypeClassName(
+  typeName: string,
+  variant: TypeBadgeVariant = "default",
+) {
   const typeColourClass =
     typeClassByName[typeName.toLowerCase()] ?? "bg-pokemon-blue text-white";
 
-  return `${baseTypeClassName} ${typeColourClass}`;
+  return `${baseTypeClassName} ${typeColourClass} ${typeBadgeSizeClassByVariant[variant]}`;
 }

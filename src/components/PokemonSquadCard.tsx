@@ -1,5 +1,5 @@
 import type { PokemonDetails } from "../types/pokemon";
-import { getPokemonTypeClassName } from "../utils/pokemonTypeStyles";
+import PokemonTypeBadge from "./PokemonTypeBadge";
 
 type PokemonSquadCardProps = {
   pokemon: PokemonDetails;
@@ -55,12 +55,11 @@ const PokemonSquadCard = ({
         <div className="flex min-w-0 flex-1 flex-col items-end gap-2">
           <div className="flex flex-wrap justify-end gap-1.5">
             {pokemon.types.map((pokemonType) => (
-              <span
+              <PokemonTypeBadge
                 key={pokemonType.type.name}
-                className={getPokemonTypeClassName(pokemonType.type.name)}
-              >
-                {pokemonType.type.name}
-              </span>
+                typeName={pokemonType.type.name}
+                variant="compact"
+              />
             ))}
           </div>
 
