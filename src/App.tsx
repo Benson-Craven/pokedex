@@ -34,6 +34,30 @@ function getPokemonIdFromUrl(url: string): number {
   return Number(id);
 }
 
+function getAveragePokemonWeight(squadPokemon: PokemonDetails[]) {
+  if (squadPokemon.length === 0) {
+    return 0;
+  }
+  const totalWeight = squadPokemon.reduce(
+    (total, pokemon) => total + pokemon.weight,
+    0,
+  );
+  const averageWeight = totalWeight / squadPokemon.length;
+  return averageWeight;
+}
+
+function getUniquePokemonTypes(squadPokemon: PokemonDetails[]) {
+  const types = new Set<string>();
+
+  for (const pokemon of squadPokemon) {
+    for (const pokemonType of pokemon.types) {
+      types.add(pokemonType.type.name);
+    }
+  }
+
+  return Array.from(types);
+}
+
 function App() {
   // pokemon list
   const {
@@ -111,6 +135,10 @@ function App() {
     : pokemon;
   const emptySquadSlots = Array.from({ length: 6 - squadPokemon.length });
 
+  const averagePokemonWeightKg = getAveragePokemonWeight(squadPokemon) / 10;
+
+  const uniquePokemonTypes = getUniquePokemonTypes(squadPokemon);
+
   return (
     <main className="min-h-screen bg-pokemon-bg text-pokemon-black ">
       <section className="mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center gap-12 px-6 py-12 ">
@@ -149,6 +177,16 @@ function App() {
               </h2>
             </div>
             <div className="flex flex-wrap items-center gap-4">
+              {uniquePokemonTypes.length > 0 && (
+                <p className="w-fit rounded-full border-2 border-pokemon-dark-blue bg-white px-4 py-2 text-sm font-black shadow-[2px_2px_0_#003a70]">
+                  Types: {uniquePokemonTypes.join(", ")}
+                </p>
+              )}
+              {squadPokemon.length !== 0 && (
+                <p className="w-fit rounded-full border-2 border-pokemon-dark-blue bg-white px-4 py-2 text-sm font-black shadow-[2px_2px_0_#003a70]">
+                  Average Weight: {averagePokemonWeightKg.toFixed(2)} kg
+                </p>
+              )}
               <p className="w-fit rounded-full border-2 border-pokemon-dark-blue bg-white px-4 py-2 text-sm font-black shadow-[2px_2px_0_#003a70]">
                 {squadPokemon.length}/6 selected
               </p>

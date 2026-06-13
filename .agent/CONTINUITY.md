@@ -13,6 +13,9 @@
 - 2026-06-12T22:08Z [CODE] Implemented squad-aware list rendering in `PokemonList.tsx` by adding `isPokemonInSquad` prop typing and using block-bodied `map` to derive `isInSquad` per item.
 - 2026-06-13T12:05Z [CODE] Updated `src/utils/pokemonTypeStyles.ts` to map all 18 Pokemon types to badge colour classes with per-type text contrast and fallback styling.
 - 2026-06-13T13:00Z [USER] User requested reverting the assistant-written clear squad implementation so they can write it themselves.
+- 2026-06-13T13:10Z [USER] User implemented clear squad feature with coaching: `useSquad` now returns `clearSquad`, and `App.tsx` renders a disabled-when-empty Clear team button.
+- 2026-06-13T13:41Z [USER] User implemented derived average team weight display in `App.tsx` using `getAveragePokemonWeight(squadPokemon)` and `averagePokemonWeightKg`.
+- 2026-06-13T13:56Z [USER] User implemented derived unique team types display in `App.tsx` using `getUniquePokemonTypes(squadPokemon)` with a `Set<string>`.
 
 [DISCOVERIES]
 - 2026-06-11T00:00Z [CODE] App is a Vite React 19 TypeScript project. `App.tsx` orchestrates custom hooks, derived state, search filtering, squad management, and rendering.
@@ -28,3 +31,6 @@
 - 2026-06-13T12:45Z [CODE] Added `This Pokémon app as a React learning lab` subsection to `AGENTS.md`, requiring future React tasks to map changes to repo-specific concepts, data flow, stored-vs-derived state, a small exercise, and a patch plan before editing.
 - 2026-06-13T13:00Z [CODE] Reverted clear squad edits from `src/hooks/useSquad.ts` and `src/App.tsx`; no remaining code diff for that feature.
 - 2026-06-13T13:01Z [CODE] Updated `AGENTS.md` so Codex defaults to letting the user write code for learning-oriented feature work and must not start dev/preview/web servers or browser verification unless explicitly asked in that turn.
+- 2026-06-13T13:10Z [TOOL] `npm run lint` and `npm run build` passed after user-implemented clear squad feature; no dev server or browser verification was run.
+- 2026-06-13T13:41Z [TOOL] `npm run lint` and `npm run build` passed after average team weight display; no dev server or browser verification was run.
+- 2026-06-13T13:56Z [TOOL] `npm run lint` and `npm run build` passed after unique team types display; no dev server or browser verification was run.
