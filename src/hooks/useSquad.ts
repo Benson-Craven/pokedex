@@ -42,9 +42,14 @@ export function useSquad() {
     );
   }
 
+  function clearSquad() {
+    setSquadPokemon([]);
+  }
+
   return {
     squadPokemon,
     addToSquad,
     removeFromSquad,
+    clearSquad,
   };
 }

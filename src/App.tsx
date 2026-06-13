@@ -48,7 +48,7 @@ function App() {
   } = usePokemonList();
 
   // squad pokemon
-  const { squadPokemon, addToSquad, removeFromSquad } = useSquad();
+  const { squadPokemon, addToSquad, removeFromSquad, clearSquad } = useSquad();
 
   // pokdex
   const {
@@ -148,9 +148,19 @@ function App() {
                 My Team
               </h2>
             </div>
-            <p className="w-fit rounded-full border-2 border-pokemon-dark-blue bg-white px-4 py-2 text-sm font-black shadow-[2px_2px_0_#003a70]">
-              {squadPokemon.length}/6 selected
-            </p>
+            <div className="flex flex-wrap items-center gap-4">
+              <p className="w-fit rounded-full border-2 border-pokemon-dark-blue bg-white px-4 py-2 text-sm font-black shadow-[2px_2px_0_#003a70]">
+                {squadPokemon.length}/6 selected
+              </p>
+              <button
+                className="w-fit cursor-pointer rounded-full border-2 border-pokemon-dark-blue bg-pokemon-red px-4 py-2 font-black text-white shadow-[2px_2px_0_#003a70] transition disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-600"
+                type="button"
+                onClick={clearSquad}
+                disabled={squadPokemon.length === 0}
+              >
+                Clear team
+              </button>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">

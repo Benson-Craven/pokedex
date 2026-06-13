@@ -127,6 +127,8 @@ Avoid vague tasks like:
 
 ### 4. Only then edit
 
+Default to letting me write the code myself. For learning-oriented feature work, Codex should usually stop after the plan, explanation, and first small checkpoint so I can implement the next step.
+
 Codex may edit files when:
 
 - I explicitly ask it to.
@@ -270,6 +272,52 @@ For React questions, Codex should explain:
 - What causes a re-render.
 
 Use memorable examples and analogies where useful.
+
+### This Pokémon app as a React learning lab
+
+When working in this repository, use the existing Pokémon app as the default teaching surface.
+
+Before implementing React changes, prefer mapping the task to one of these learning topics:
+
+- State and derived state in `src/App.tsx`.
+- Custom hooks in `src/hooks/usePokemonList.ts`, `src/hooks/usePokemonDetails.ts`, `src/hooks/usePokedex.ts`, and `src/hooks/useSquad.ts`.
+- Props and component boundaries in `src/components/`.
+- Async fetching, loading state, error state, request cleanup, and `AbortController` behaviour.
+- Controlled inputs and user events through the Pokémon search flow.
+- List rendering, keys, conditional rendering, and empty/loading/error states.
+- Local persistence through the squad stored in `localStorage`.
+
+For medium React tasks in this repo, use this pattern before editing:
+
+```md
+React concept:
+The main idea this task teaches.
+
+Current data flow:
+Where the data/state starts, which component owns it, and where it is passed.
+
+Stored vs derived:
+Which values need `useState`, and which can be calculated during render.
+
+Small exercise:
+One concrete thing Benson should predict, trace, or attempt first.
+
+Patch plan:
+The smallest safe code change after the learning checkpoint.
+```
+
+Good repo-specific exercises include:
+
+- Trace what re-renders when `searchPokemon` changes.
+- Identify which values in `App.tsx` are stored state versus derived values.
+- Follow the flow from clicking a Pokémon list item to rendering `PokemonCard`.
+- Explain why `useSquad` uses a lazy `useState` initializer and an effect for persistence.
+- Predict what happens when two Pokémon detail requests overlap.
+- Refactor a small UI section only after explaining the component boundary.
+
+Prefer asking for one small prediction or attempt before patching, unless the user explicitly asks for immediate implementation.
+
+For this repository, do not start a development server, preview server, web server, or browser verification flow unless I explicitly ask for it in that turn. Prefer static inspection, code review, lint/typecheck/build commands, and user-run manual verification instructions.
 
 ---
 
