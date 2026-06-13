@@ -58,6 +58,25 @@ function getUniquePokemonTypes(squadPokemon: PokemonDetails[]) {
   return Array.from(types);
 }
 
+type SquadSortMode = "added" | "name" | "weight";
+
+function sortSquadPokemon(
+  squadPokemon: PokemonDetails[],
+  sortMode: SquadSortMode,
+) {
+  const sortedPokemon = [...squadPokemon];
+
+  if (sortMode === "name") {
+    sortedPokemon.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  if (sortMode === "weight") {
+    sortedPokemon.sort((a, b) => a.weight - b.weight);
+  }
+
+  return sortedPokemon;
+}
+
 function App() {
   // pokemon list
   const {
@@ -107,6 +126,8 @@ function App() {
 
   const [searchPokemon, setSearchPokemon] = useState<string>("");
 
+  const [squadSortMode, setSquadSortMode] = useState<SquadSortMode>("added");
+
   // initialise the abort controller to ensure repeat requests are handled correctly
 
   // fetch the internal pokedex and the actual pokemon list
@@ -138,6 +159,8 @@ function App() {
   const averagePokemonWeightKg = getAveragePokemonWeight(squadPokemon) / 10;
 
   const uniquePokemonTypes = getUniquePokemonTypes(squadPokemon);
+
+  const sortedSquadPokemon = sortSquadPokemon(squadPokemon, squadSortMode);
 
   return (
     <main className="min-h-screen bg-pokemon-bg text-pokemon-black ">
@@ -190,6 +213,21 @@ function App() {
               <p className="w-fit rounded-full border-2 border-pokemon-dark-blue bg-white px-4 py-2 text-sm font-black shadow-[2px_2px_0_#003a70]">
                 {squadPokemon.length}/6 selected
               </p>
+              <label className="flex items-center gap-2 text-sm font-black">
+                Sort By:
+                <select
+                  value={squadSortMode}
+                  onChange={(event) =>
+                    setSquadSortMode(event.target.value as SquadSortMode)
+                  }
+                  className="rounded-full border-2 border-pokemon-dark-blue
+  bg-white px-3 py-2 font-black shadow-[2px_2px_0_#003a70]"
+                >
+                  <option value="added">Added</option>
+                  <option value="name">Name</option>
+                  <option value="weight">Weight</option>
+                </select>
+              </label>
               <button
                 className="w-fit cursor-pointer rounded-full border-2 border-pokemon-dark-blue bg-pokemon-red px-4 py-2 font-black text-white shadow-[2px_2px_0_#003a70] transition disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-600"
                 type="button"
@@ -202,7 +240,7 @@ function App() {
           </div>
 
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {squadPokemon.map((pokemon, index) => (
+            {sortedSquadPokemon.map((pokemon, index) => (
               <PokemonSquadCard
                 key={pokemon.id}
                 pokemon={pokemon}

@@ -16,6 +16,7 @@
 - 2026-06-13T13:10Z [USER] User implemented clear squad feature with coaching: `useSquad` now returns `clearSquad`, and `App.tsx` renders a disabled-when-empty Clear team button.
 - 2026-06-13T13:41Z [USER] User implemented derived average team weight display in `App.tsx` using `getAveragePokemonWeight(squadPokemon)` and `averagePokemonWeightKg`.
 - 2026-06-13T13:56Z [USER] User implemented derived unique team types display in `App.tsx` using `getUniquePokemonTypes(squadPokemon)` with a `Set<string>`.
+- 2026-06-13T14:29Z [USER] User implemented squad sort control in `App.tsx` with typed `SquadSortMode`, `sortSquadPokemon`, controlled `<select>`, and rendering from `sortedSquadPokemon`.
 
 [DISCOVERIES]
 - 2026-06-11T00:00Z [CODE] App is a Vite React 19 TypeScript project. `App.tsx` orchestrates custom hooks, derived state, search filtering, squad management, and rendering.
@@ -34,3 +35,4 @@
 - 2026-06-13T13:10Z [TOOL] `npm run lint` and `npm run build` passed after user-implemented clear squad feature; no dev server or browser verification was run.
 - 2026-06-13T13:41Z [TOOL] `npm run lint` and `npm run build` passed after average team weight display; no dev server or browser verification was run.
 - 2026-06-13T13:56Z [TOOL] `npm run lint` and `npm run build` passed after unique team types display; no dev server or browser verification was run.
+- 2026-06-13T14:29Z [TOOL] `npm run lint` and `npm run build` passed after squad sort control; no dev server or browser verification was run.
