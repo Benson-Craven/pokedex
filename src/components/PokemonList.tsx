@@ -6,6 +6,7 @@ type PokemonListProps = {
   isPokedexLoading: boolean;
   pokedexError: Error | null;
   onSelectPokemon: (url: string) => void;
+  isPokemonInSquad: (url: string) => boolean;
 };
 
 const PokemonList = ({
@@ -14,6 +15,7 @@ const PokemonList = ({
   isPokedexLoading,
   pokedexError,
   onSelectPokemon,
+  isPokemonInSquad,
 }: PokemonListProps) => {
   return (
     <div className="flex w-full max-w-2xl flex-col gap-5">
@@ -25,15 +27,24 @@ const PokemonList = ({
         ) : pokemon.length === 0 ? (
           <p>Try another Pokémon...</p>
         ) : (
-          pokemon.map((pokemonItem) => (
-            <button
-              className="cursor-pointer rounded-xl border-4 border-pokemon-dark-blue bg-pokemon-yellow px-8 py-4 font-bold uppercase text-pokemon-dark-blue shadow-[4px_4px_0_#003a70] transition hover:-translate-y-1 hover:shadow-[6px_6px_0_#003a70]"
-              key={pokemonItem.name}
-              onClick={() => onSelectPokemon(pokemonItem.url)}
-            >
-              {pokemonItem.name}
-            </button>
-          ))
+          pokemon.map((pokemonItem) => {
+            const isInSquad = isPokemonInSquad(pokemonItem.url);
+
+            const buttonClassName = isInSquad
+              ? "cursor-pointer rounded-xl border-4 border-pokemon-dark-blue bg-slate-200 px-8 py-4 font-bold uppercase text-pokemon-dark-blue opacity-75 shadow-[2px_2px_0_#003a70] transition"
+              : "cursor-pointer rounded-xl border-4 border-pokemon-dark-blue bg-pokemon-yellow px-8 py-4 font-bold uppercase text-pokemon-dark-blue shadow-[4px_4px_0_#003a70] transition hover:-translate-y-1 hover:shadow-[6px_6px_0_#003a70]";
+
+            return (
+              <button
+                className={buttonClassName}
+                key={pokemonItem.name}
+                onClick={() => onSelectPokemon(pokemonItem.url)}
+              >
+                {pokemonItem.name}
+                {isInSquad ? " - In team" : ""}
+              </button>
+            );
+          })
         )}
       </div>
     </div>

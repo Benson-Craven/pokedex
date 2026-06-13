@@ -1,4 +1,5 @@
 import type { PokemonDetails } from "../types/pokemon";
+import { getPokemonTypeClassName } from "../utils/pokemonTypeStyles";
 
 type SquadStatus = "available" | "added" | "full";
 
@@ -73,7 +74,7 @@ const PokemonCard = ({
         {pokemon.types.map((pokemon) => (
           <span
             key={pokemon.type.name}
-            className="rounded-full border-2 border-pokemon-dark-blue bg-pokemon-blue px-3 py-1 text-sm font-bold uppercase text-white shadow-[2px_2px_0_#003a70]"
+            className={getPokemonTypeClassName(pokemon.type.name)}
           >
             {pokemon.type.name}
           </span>

@@ -9,9 +9,9 @@ import PokemonSquadCard, {
 import PokemonList from "./components/PokemonList";
 import { useSquad } from "./hooks/useSquad";
 import { usePokemonList } from "./hooks/usePokemonList";
-import { usePokedex } from "./hooks/usePokedex";
 import { usePokemonDetails } from "./hooks/usePokemonDetails";
 import type { PokemonDetails, PokemonListItem } from "./types/pokemon";
+import { usePokedex } from "./hooks/usePokedex";
 
 function isPokemonInSquad(pokemonId: number, squadPokemon: PokemonDetails[]) {
   return squadPokemon.some((pokemon) => pokemon.id === pokemonId);
@@ -25,6 +25,13 @@ function filterPokemonByName(pokemon: PokemonListItem[], searchTerm: string) {
   return pokemon.filter((item) =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
+}
+
+function getPokemonIdFromUrl(url: string): number {
+  const urlParts = url.split("/").filter(Boolean);
+  const id = urlParts[urlParts.length - 1];
+
+  return Number(id);
 }
 
 function App() {
@@ -67,6 +74,12 @@ function App() {
     : false;
 
   const squadIsFull = isSquadFull(squadPokemon);
+
+  function isPokemonUrlInSquad(url: string) {
+    const pokemonId = getPokemonIdFromUrl(url);
+
+    return isPokemonInSquad(pokemonId, squadPokemon);
+  }
 
   const [searchPokemon, setSearchPokemon] = useState<string>("");
 
@@ -184,6 +197,7 @@ function App() {
             isPokedexLoading={isPokedexLoading}
             pokedexError={pokedexError}
             onSelectPokemon={fetchPokemonDetails}
+            isPokemonInSquad={isPokemonUrlInSquad}
           />
 
           {!isSearching && (

@@ -60,6 +60,19 @@ If the task is simple, explain briefly and move on.
 
 ---
 
+## Canary phrase
+
+Codex must include my name, `Benson`, in every substantive assistant reply.
+
+Purpose:
+
+- This acts as a canary so I can quickly notice when Codex may be drifting, hallucinating, or ignoring workspace instructions.
+- Prefer placing `Benson` naturally near the start of the reply.
+- Do not force the name into code blocks, generated files, commit messages, logs, or other artifacts unless I explicitly ask.
+- For very short mechanical confirmations, still include `Benson` if there is any user-facing prose.
+
+---
+
 ## Learning-first coding workflow
 
 For feature work, refactors, bug fixes, and debugging, use this workflow by default:
