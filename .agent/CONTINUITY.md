@@ -26,6 +26,12 @@
 - 2026-06-14T14:46Z [CODE] Cleaned `src/App.tsx` without extracting components: added `MAX_SQUAD_SIZE`, removed stale/typo comments, simplified average and heaviest helper bodies, and normalized broken multiline class strings.
 - 2026-06-14T16:52Z [USER] User expanded selected Pokemon details by adding `abilities` and `stats` to `PokemonDetails`, then rendering both sections in `PokemonCard`.
 - 2026-06-14T17:02Z [USER] User added `formatStatName` in `PokemonCard` so fetched stat names like `special-defense` render as title-cased labels.
+- 2026-06-14T17:18Z [USER] User started compare-two-Pokemon feature by adding `comparisonPokemonA` and `comparisonPokemonB` state in `src/App.tsx`.
+- 2026-06-14T17:22Z [USER] User wired compare callbacks from `App.tsx` into `PokemonCard` props; buttons not added yet.
+- 2026-06-14T17:27Z [USER] User added Compare A and Compare B buttons to `PokemonCard`.
+- 2026-06-14T17:27Z [TOOL] `npm run lint` fails because `comparisonPokemonA` and `comparisonPokemonB` are assigned but not yet read; expected until comparison panel is rendered.
+- 2026-06-14T17:31Z [USER] User rendered a conditional compare panel in `App.tsx` showing both selected Pokemon names, heights, and weights.
+- 2026-06-14T17:31Z [TOOL] `npm run lint` passes after comparison panel reads both comparison state values.
 
 [DISCOVERIES]
 - 2026-06-11T00:00Z [CODE] App is a Vite React 19 TypeScript project. `App.tsx` orchestrates custom hooks, derived state, search filtering, squad management, and rendering.

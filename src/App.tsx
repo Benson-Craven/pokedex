@@ -105,6 +105,17 @@ function getHeaviestPokemon(
   );
 }
 
+function getHeavierPokemon(
+  pokemonA: PokemonDetails,
+  pokemonB: PokemonDetails,
+): PokemonDetails | null {
+  if (pokemonA.weight === pokemonB.weight) {
+    return null;
+  }
+
+  return pokemonA.weight > pokemonB.weight ? pokemonA : pokemonB;
+}
+
 function App() {
   const {
     pokemon,
@@ -153,6 +164,11 @@ function App() {
 
   const [selectedSquadType, setSelectedSquadType] = useState("all");
 
+  const [comparisonPokemonA, setComparisonPokemonA] =
+    useState<PokemonDetails | null>(null);
+  const [comparisonPokemonB, setComparisonPokemonB] =
+    useState<PokemonDetails | null>(null);
+
   useEffect(() => {
     fetchPokemonList(INITIAL_POKEMON_LIST_URL);
     fetchPokedex(INITIAL_POKEDEX_URL);
@@ -192,6 +208,11 @@ function App() {
   );
 
   const heaviestPokemon = getHeaviestPokemon(squadPokemon);
+
+  const heavierComparisonPokemon =
+    comparisonPokemonA && comparisonPokemonB
+      ? getHeavierPokemon(comparisonPokemonA, comparisonPokemonB)
+      : null;
 
   return (
     <main className="min-h-screen bg-pokemon-bg text-pokemon-black ">
@@ -322,7 +343,31 @@ function App() {
                     ? "full"
                     : "available"
               }
+              onCompareA={() => setComparisonPokemonA(selectedPokemon)}
+              onCompareB={() => setComparisonPokemonB(selectedPokemon)}
             />
+          )}
+
+          {comparisonPokemonA && comparisonPokemonB && (
+            <section className="w-full max-w-2xl rounded-xl border-4 border-pokemon-dark-blue bg-white p-4 uppercase text-pokemon-dark-blue shadow-[6px_6px_0_#003a70]">
+              <h2 className="mb-3 font-pokemon-solid text-2xl tracking-wide text-pokemon-blue">
+                Compare
+              </h2>
+
+              <div className="grid grid-cols-2 gap-3 text-sm font-bold">
+                <p>{comparisonPokemonA.name}</p>
+                <p>{comparisonPokemonB.name}</p>
+
+                <p>Height: {comparisonPokemonA.height / 10} m</p>
+                <p>Height: {comparisonPokemonB.height / 10} m</p>
+
+                <p className="col-span-2 rounded-lg border-2 border-pokemon-dark-blue bg-pokemon-yellow px-3 py-2">
+                  Heavier Pokémon: {heavierComparisonPokemon?.name ?? "Tie"}
+                </p>
+                <p>Weight: {comparisonPokemonA.weight / 10} kg</p>
+                <p>Weight: {comparisonPokemonB.weight / 10} kg</p>
+              </div>
+            </section>
           )}
 
           <PokemonList
