@@ -22,6 +22,12 @@ export type PokemonDetails = {
     };
     is_hidden: boolean;
   }[];
+  stats: {
+    base_stat: number;
+    stat: {
+      name: string;
+    };
+  }[];
 };
 
 export type PokemonListResponse = {

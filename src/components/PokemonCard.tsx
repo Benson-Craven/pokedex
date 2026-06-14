@@ -24,6 +24,13 @@ const addButtonClassByStatus = {
   full: "bg-pokemon-red text-white cursor-not-allowed opacity-80",
 };
 
+function formatStatName(statName: string) {
+  return statName
+    .split("-")
+    .map((word) => word[0].toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
 const PokemonCard = ({
   pokemon,
   onClear,
@@ -79,6 +86,21 @@ const PokemonCard = ({
             <li key={pokemonAbility.ability.name}>
               {pokemonAbility.ability.name}
               {pokemonAbility.is_hidden && " (hidden)"}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="mb-4 rounded-lg border-2 border-pokemon-dark-blue bg-white px-3 py-2 text-sm font-bold">
+        <p className="mb-2">Stats</p>
+        <ul className="space-y-1">
+          {pokemon.stats.map((pokemonStat) => (
+            <li
+              key={pokemonStat.stat.name}
+              className="flex justify-between gap-3"
+            >
+              <span>{formatStatName(pokemonStat.stat.name)}</span>
+              <span>{pokemonStat.base_stat}</span>
             </li>
           ))}
         </ul>

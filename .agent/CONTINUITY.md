@@ -3,6 +3,7 @@
 - 2026-06-14T14:12Z [USER] User asked for a coaching-first suggestion for a new feature; no server startup.
 - 2026-06-14T14:39Z [USER] User wants to work coaching-first on making `src/App.tsx` more concise; no server startup.
 - 2026-06-14T14:52Z [USER] User wants coaching-first work on improving the selected Pokemon card with more information; no server startup.
+- 2026-06-14T17:12Z [USER] User chose compare-two-Pokemon as the next coaching-first feature; no server startup.
 
 [DECISIONS]
 - 2026-06-11T00:00Z [ASSUMPTION] Treat the request as coaching/analysis only; no app code edits are needed.
@@ -23,6 +24,8 @@
 - 2026-06-14T14:06Z [USER] User implemented squad type filter in `App.tsx` with `selectedSquadType`, `filterSquadPokemonByType`, a controlled type `<select>`, and rendering from `filteredSquadPokemon`.
 - 2026-06-14T14:33Z [USER] User implemented heaviest Pokemon summary in `App.tsx` using `getHeaviestPokemon(squadPokemon)`, explicit `PokemonDetails | null` return type, and guarded JSX rendering.
 - 2026-06-14T14:46Z [CODE] Cleaned `src/App.tsx` without extracting components: added `MAX_SQUAD_SIZE`, removed stale/typo comments, simplified average and heaviest helper bodies, and normalized broken multiline class strings.
+- 2026-06-14T16:52Z [USER] User expanded selected Pokemon details by adding `abilities` and `stats` to `PokemonDetails`, then rendering both sections in `PokemonCard`.
+- 2026-06-14T17:02Z [USER] User added `formatStatName` in `PokemonCard` so fetched stat names like `special-defense` render as title-cased labels.
 
 [DISCOVERIES]
 - 2026-06-11T00:00Z [CODE] App is a Vite React 19 TypeScript project. `App.tsx` orchestrates custom hooks, derived state, search filtering, squad management, and rendering.
@@ -47,3 +50,5 @@
 - 2026-06-14T14:06Z [TOOL] `npm run lint` and `npm run build` passed after squad type filter; no dev server or browser verification was run.
 - 2026-06-14T14:33Z [TOOL] `npm run lint` and `npm run build` passed after heaviest Pokemon summary; no dev server or browser verification was run.
 - 2026-06-14T14:46Z [TOOL] `npm run lint` passed after `App.tsx` cleanup. `npm run build` failed during Vite startup because local `node_modules` is missing Rolldown optional native package `@rolldown/binding-darwin-x64`; TypeScript completed before the Vite/Rolldown failure.
+- 2026-06-14T16:52Z [TOOL] `npm run lint` passed after user-added selected card abilities and stats sections; no server startup or browser verification was run.
+- 2026-06-14T17:02Z [TOOL] `npm run lint` passed after user-added stat-name formatting helper; no server startup or browser verification was run.
