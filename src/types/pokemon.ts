@@ -16,6 +16,12 @@ export type PokemonDetails = {
       name: string;
     };
   }[];
+  abilities: {
+    ability: {
+      name: string;
+    };
+    is_hidden: boolean;
+  }[];
 };
 
 export type PokemonListResponse = {

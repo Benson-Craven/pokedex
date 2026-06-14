@@ -1,5 +1,8 @@
 [PLANS]
 - 2026-06-11T00:00Z [USER] User asked for a learning-first hypothesis about what to learn next in React using this Pokemon web app.
+- 2026-06-14T14:12Z [USER] User asked for a coaching-first suggestion for a new feature; no server startup.
+- 2026-06-14T14:39Z [USER] User wants to work coaching-first on making `src/App.tsx` more concise; no server startup.
+- 2026-06-14T14:52Z [USER] User wants coaching-first work on improving the selected Pokemon card with more information; no server startup.
 
 [DECISIONS]
 - 2026-06-11T00:00Z [ASSUMPTION] Treat the request as coaching/analysis only; no app code edits are needed.
@@ -17,12 +20,17 @@
 - 2026-06-13T13:41Z [USER] User implemented derived average team weight display in `App.tsx` using `getAveragePokemonWeight(squadPokemon)` and `averagePokemonWeightKg`.
 - 2026-06-13T13:56Z [USER] User implemented derived unique team types display in `App.tsx` using `getUniquePokemonTypes(squadPokemon)` with a `Set<string>`.
 - 2026-06-13T14:29Z [USER] User implemented squad sort control in `App.tsx` with typed `SquadSortMode`, `sortSquadPokemon`, controlled `<select>`, and rendering from `sortedSquadPokemon`.
+- 2026-06-14T14:06Z [USER] User implemented squad type filter in `App.tsx` with `selectedSquadType`, `filterSquadPokemonByType`, a controlled type `<select>`, and rendering from `filteredSquadPokemon`.
+- 2026-06-14T14:33Z [USER] User implemented heaviest Pokemon summary in `App.tsx` using `getHeaviestPokemon(squadPokemon)`, explicit `PokemonDetails | null` return type, and guarded JSX rendering.
+- 2026-06-14T14:46Z [CODE] Cleaned `src/App.tsx` without extracting components: added `MAX_SQUAD_SIZE`, removed stale/typo comments, simplified average and heaviest helper bodies, and normalized broken multiline class strings.
 
 [DISCOVERIES]
 - 2026-06-11T00:00Z [CODE] App is a Vite React 19 TypeScript project. `App.tsx` orchestrates custom hooks, derived state, search filtering, squad management, and rendering.
 - 2026-06-11T00:00Z [CODE] Hooks demonstrate async fetch state, `AbortController`, `useRef`, `useCallback`, lazy `useState`, and localStorage persistence.
 - 2026-06-11T00:00Z [CODE] User added helper functions in `App.tsx`; superseded by 2026-06-11T22:16Z.
 - 2026-06-11T22:16Z [CODE] `App.tsx` currently has single `isSquadFull` and working `filterPokemonByName`; earlier duplicate-helper/search typo note is no longer current.
+- 2026-06-14T14:39Z [CODE] `src/App.tsx` is 374 lines; wordiness is concentrated in squad derived helpers at lines 30-109, derived values at lines 190-203, and squad panel JSX at lines 232-320.
+- 2026-06-14T14:52Z [CODE] Selected-card data flow: `PokemonList` calls `fetchPokemonDetails`; `usePokemonDetails` stores `selectedPokemon`; `App.tsx` passes it to `PokemonCard`; `PokemonCard` currently renders id, name, sprite, height, weight, types, and add status.
 
 [OUTCOMES]
 - 2026-06-11T00:00Z [ASSUMPTION] Final response should map specific React learning topics to this repo's existing files and suggest small exercises.
@@ -36,3 +44,6 @@
 - 2026-06-13T13:41Z [TOOL] `npm run lint` and `npm run build` passed after average team weight display; no dev server or browser verification was run.
 - 2026-06-13T13:56Z [TOOL] `npm run lint` and `npm run build` passed after unique team types display; no dev server or browser verification was run.
 - 2026-06-13T14:29Z [TOOL] `npm run lint` and `npm run build` passed after squad sort control; no dev server or browser verification was run.
+- 2026-06-14T14:06Z [TOOL] `npm run lint` and `npm run build` passed after squad type filter; no dev server or browser verification was run.
+- 2026-06-14T14:33Z [TOOL] `npm run lint` and `npm run build` passed after heaviest Pokemon summary; no dev server or browser verification was run.
+- 2026-06-14T14:46Z [TOOL] `npm run lint` passed after `App.tsx` cleanup. `npm run build` failed during Vite startup because local `node_modules` is missing Rolldown optional native package `@rolldown/binding-darwin-x64`; TypeScript completed before the Vite/Rolldown failure.

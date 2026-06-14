@@ -71,6 +71,19 @@ const PokemonCard = ({
         </p>
       </div>
 
+      <div className="mb-4 rounded-lg border-2 border-pokemon-dark-blue bg-white px-3 py-2 text-sm font-bold">
+        <p className="mb-2">Abilities</p>
+
+        <ul className="space-y-1">
+          {pokemon.abilities.map((pokemonAbility) => (
+            <li key={pokemonAbility.ability.name}>
+              {pokemonAbility.ability.name}
+              {pokemonAbility.is_hidden && " (hidden)"}
+            </li>
+          ))}
+        </ul>
+      </div>
+
       <div className="flex flex-wrap gap-2">
         {pokemon.types.map((pokemonType) => (
           <PokemonTypeBadge

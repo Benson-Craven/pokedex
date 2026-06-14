@@ -13,17 +13,32 @@ import { usePokemonDetails } from "./hooks/usePokemonDetails";
 import type { PokemonDetails, PokemonListItem } from "./types/pokemon";
 import { usePokedex } from "./hooks/usePokedex";
 
+const MAX_SQUAD_SIZE = 6;
+
 function isPokemonInSquad(pokemonId: number, squadPokemon: PokemonDetails[]) {
   return squadPokemon.some((pokemon) => pokemon.id === pokemonId);
 }
 
 function isSquadFull(squadPokemon: PokemonDetails[]) {
-  return squadPokemon.length >= 6;
+  return squadPokemon.length >= MAX_SQUAD_SIZE;
 }
 
 function filterPokemonByName(pokemon: PokemonListItem[], searchTerm: string) {
   return pokemon.filter((item) =>
     item.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+}
+
+function filterSquadPokemonByType(
+  squadPokemon: PokemonDetails[],
+  selectedType: string,
+) {
+  if (selectedType === "all") {
+    return squadPokemon;
+  }
+
+  return squadPokemon.filter((pokemon) =>
+    pokemon.types.some((pokemonType) => pokemonType.type.name === selectedType),
   );
 }
 
@@ -38,12 +53,13 @@ function getAveragePokemonWeight(squadPokemon: PokemonDetails[]) {
   if (squadPokemon.length === 0) {
     return 0;
   }
+
   const totalWeight = squadPokemon.reduce(
     (total, pokemon) => total + pokemon.weight,
     0,
   );
-  const averageWeight = totalWeight / squadPokemon.length;
-  return averageWeight;
+
+  return totalWeight / squadPokemon.length;
 }
 
 function getUniquePokemonTypes(squadPokemon: PokemonDetails[]) {
@@ -77,8 +93,19 @@ function sortSquadPokemon(
   return sortedPokemon;
 }
 
+function getHeaviestPokemon(
+  squadPokemon: PokemonDetails[],
+): PokemonDetails | null {
+  if (squadPokemon.length === 0) {
+    return null;
+  }
+
+  return squadPokemon.reduce((heaviest, pokemon) =>
+    pokemon.weight > heaviest.weight ? pokemon : heaviest,
+  );
+}
+
 function App() {
-  // pokemon list
   const {
     pokemon,
     isListLoading,
@@ -90,10 +117,8 @@ function App() {
     INITIAL_POKEMON_LIST_URL,
   } = usePokemonList();
 
-  // squad pokemon
   const { squadPokemon, addToSquad, removeFromSquad, clearSquad } = useSquad();
 
-  // pokdex
   const {
     pokedex,
     isPokedexLoading,
@@ -101,8 +126,6 @@ function App() {
     fetchPokedex,
     INITIAL_POKEDEX_URL,
   } = usePokedex();
-
-  // individual pokémon
 
   const {
     selectedPokemon,
@@ -128,9 +151,8 @@ function App() {
 
   const [squadSortMode, setSquadSortMode] = useState<SquadSortMode>("added");
 
-  // initialise the abort controller to ensure repeat requests are handled correctly
+  const [selectedSquadType, setSelectedSquadType] = useState("all");
 
-  // fetch the internal pokedex and the actual pokemon list
   useEffect(() => {
     fetchPokemonList(INITIAL_POKEMON_LIST_URL);
     fetchPokedex(INITIAL_POKEDEX_URL);
@@ -154,13 +176,22 @@ function App() {
   const filteredPokemon = isSearching
     ? filterPokemonByName(pokedex, searchPokemon)
     : pokemon;
-  const emptySquadSlots = Array.from({ length: 6 - squadPokemon.length });
+  const emptySquadSlots = Array.from({
+    length: MAX_SQUAD_SIZE - squadPokemon.length,
+  });
 
   const averagePokemonWeightKg = getAveragePokemonWeight(squadPokemon) / 10;
 
   const uniquePokemonTypes = getUniquePokemonTypes(squadPokemon);
 
   const sortedSquadPokemon = sortSquadPokemon(squadPokemon, squadSortMode);
+
+  const filteredSquadPokemon = filterSquadPokemonByType(
+    sortedSquadPokemon,
+    selectedSquadType,
+  );
+
+  const heaviestPokemon = getHeaviestPokemon(squadPokemon);
 
   return (
     <main className="min-h-screen bg-pokemon-bg text-pokemon-black ">
@@ -170,10 +201,7 @@ function App() {
             Gotta catch 'em all!
           </p>
 
-          <h1
-            className="mb-6 font-pokemon-solid text-5xl leading-tight tracking-widest text-pokemon-yellow md:text-7xl pokemon-title-shadow drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)] 
-"
-          >
+          <h1 className="mb-6 font-pokemon-solid text-5xl leading-tight tracking-widest text-pokemon-yellow md:text-7xl pokemon-title-shadow drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]">
             Pokédex
           </h1>
 
@@ -210,8 +238,14 @@ function App() {
                   Average Weight: {averagePokemonWeightKg.toFixed(2)} kg
                 </p>
               )}
+              {heaviestPokemon && (
+                <p className="w-fit rounded-full border-2 border-pokemon-dark-blue bg-white px-4 py-2 text-sm font-black shadow-[2px_2px_0_#003a70]">
+                  Heaviest: {heaviestPokemon.name} (
+                  {heaviestPokemon.weight / 10} kg)
+                </p>
+              )}
               <p className="w-fit rounded-full border-2 border-pokemon-dark-blue bg-white px-4 py-2 text-sm font-black shadow-[2px_2px_0_#003a70]">
-                {squadPokemon.length}/6 selected
+                {squadPokemon.length}/{MAX_SQUAD_SIZE} selected
               </p>
               <label className="flex items-center gap-2 text-sm font-black">
                 Sort By:
@@ -220,12 +254,26 @@ function App() {
                   onChange={(event) =>
                     setSquadSortMode(event.target.value as SquadSortMode)
                   }
-                  className="rounded-full border-2 border-pokemon-dark-blue
-  bg-white px-3 py-2 font-black shadow-[2px_2px_0_#003a70]"
+                  className="rounded-full border-2 border-pokemon-dark-blue bg-white px-3 py-2 font-black shadow-[2px_2px_0_#003a70]"
                 >
                   <option value="added">Added</option>
                   <option value="name">Name</option>
                   <option value="weight">Weight</option>
+                </select>
+              </label>
+              <label className="flex items-center gap-2 text-sm font-black">
+                Filter Type:
+                <select
+                  value={selectedSquadType}
+                  onChange={(event) => setSelectedSquadType(event.target.value)}
+                  className="rounded-full border-2 border-pokemon-dark-blue bg-white px-3 py-2 font-black shadow-[2px_2px_0_#003a70]"
+                >
+                  <option value="all">All</option>
+                  {uniquePokemonTypes.map((typeName) => (
+                    <option key={typeName} value={typeName}>
+                      {typeName}
+                    </option>
+                  ))}
                 </select>
               </label>
               <button
@@ -240,7 +288,7 @@ function App() {
           </div>
 
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {sortedSquadPokemon.map((pokemon, index) => (
+            {filteredSquadPokemon.map((pokemon, index) => (
               <PokemonSquadCard
                 key={pokemon.id}
                 pokemon={pokemon}
