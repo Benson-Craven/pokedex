@@ -116,6 +116,42 @@ function getHeavierPokemon(
   return pokemonA.weight > pokemonB.weight ? pokemonA : pokemonB;
 }
 
+function getSharedPokemonTypes(
+  pokemonA: PokemonDetails,
+  pokemonB: PokemonDetails,
+) {
+  const pokemonBTypes = new Set(
+    pokemonB.types.map((pokemonType) => pokemonType.type.name),
+  );
+
+  return pokemonA.types
+    .map((pokemonType) => pokemonType.type.name)
+    .filter((typeName) => pokemonBTypes.has(typeName));
+}
+
+function getTotalBaseStats(pokemon: PokemonDetails) {
+  return pokemon.stats.reduce(
+    (total, pokemonStat) => total + pokemonStat.base_stat,
+    0,
+  );
+}
+
+function getHigherBaseStatsPokemon(
+  pokemonA: PokemonDetails,
+  pokemonB: PokemonDetails,
+): PokemonDetails | null {
+  const pokemonATotalStats = getTotalBaseStats(pokemonA);
+  const pokemonBTotalStats = getTotalBaseStats(pokemonB);
+
+  if (pokemonATotalStats === pokemonBTotalStats) {
+    return null;
+  }
+
+  return pokemonATotalStats > pokemonBTotalStats ? pokemonA : pokemonB;
+}
+
+// APP STARTS HERE
+
 function App() {
   const {
     pokemon,
@@ -212,6 +248,16 @@ function App() {
   const heavierComparisonPokemon =
     comparisonPokemonA && comparisonPokemonB
       ? getHeavierPokemon(comparisonPokemonA, comparisonPokemonB)
+      : null;
+
+  const sharedComparisonTypes =
+    comparisonPokemonA && comparisonPokemonB
+      ? getSharedPokemonTypes(comparisonPokemonA, comparisonPokemonB)
+      : [];
+
+  const higherBaseStatPokemon =
+    comparisonPokemonA && comparisonPokemonB
+      ? getHigherBaseStatsPokemon(comparisonPokemonA, comparisonPokemonB)
       : null;
 
   return (
@@ -361,11 +407,24 @@ function App() {
                 <p>Height: {comparisonPokemonA.height / 10} m</p>
                 <p>Height: {comparisonPokemonB.height / 10} m</p>
 
+                <p>Weight: {comparisonPokemonA.weight / 10} kg</p>
+                <p>Weight: {comparisonPokemonB.weight / 10} kg</p>
+
+                <p>Total Base Stats: {getTotalBaseStats(comparisonPokemonA)}</p>
+                <p>Total Base Stats: {getTotalBaseStats(comparisonPokemonB)}</p>
+
                 <p className="col-span-2 rounded-lg border-2 border-pokemon-dark-blue bg-pokemon-yellow px-3 py-2">
                   Heavier Pokémon: {heavierComparisonPokemon?.name ?? "Tie"}
                 </p>
-                <p>Weight: {comparisonPokemonA.weight / 10} kg</p>
-                <p>Weight: {comparisonPokemonB.weight / 10} kg</p>
+                <p className="col-span-2 rounded-lg border-2 border-pokemon-dark-blue bg-white px-3 py-2">
+                  Shared types:{" "}
+                  {sharedComparisonTypes.length > 0
+                    ? sharedComparisonTypes.join(", ")
+                    : "None"}
+                </p>
+                <p className="col-span-2 rounded-lg border-2 border-pokemon-dark-blue bg-pokemon-yellow px-3 py-2">
+                  Higher Base Stats: {higherBaseStatPokemon?.name ?? "Tie"}
+                </p>
               </div>
             </section>
           )}

@@ -118,14 +118,14 @@ const PokemonCard = ({
           />
         ))}
         <button
-          className="rounded-full border-2 border-pokemon-dark-blue bg-pokemon-blue px-3 py-1 text-sm font-bold uppercase text-white shadow-[2px_2px_0_#003a70] transition hover:-translate-y-0.5 hover:shadow-[3px_3px_0_#003a70]"
+          className="rounded-full border-2 border-pokemon-dark-blue bg-pokemon-blue px-3 py-1 text-sm font-bold uppercase text-white shadow-[2px_2px_0_#003a70] transition hover:-translate-y-0.5 hover:shadow-[3px_3px_0_#003a70] cursor-pointer"
           onClick={onCompareA}
         >
           Compare A
         </button>
 
         <button
-          className="rounded-full border-2 border-pokemon-dark-blue bg-pokemon-red px-3 py-1 text-sm font-bold uppercase text-white shadow-[2px_2px_0_#003a70] transition hover:-translate-y-0.5 hover:shadow-[3px_3px_0_#003a70]"
+          className="rounded-full border-2 border-pokemon-dark-blue bg-pokemon-red px-3 py-1 text-sm font-bold uppercase text-white shadow-[2px_2px_0_#003a70] transition hover:-translate-y-0.5 hover:shadow-[3px_3px_0_#003a70] cursor-pointer"
           onClick={onCompareB}
         >
           Compare B

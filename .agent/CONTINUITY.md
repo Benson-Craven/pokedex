@@ -32,6 +32,14 @@
 - 2026-06-14T17:27Z [TOOL] `npm run lint` fails because `comparisonPokemonA` and `comparisonPokemonB` are assigned but not yet read; expected until comparison panel is rendered.
 - 2026-06-14T17:31Z [USER] User rendered a conditional compare panel in `App.tsx` showing both selected Pokemon names, heights, and weights.
 - 2026-06-14T17:31Z [TOOL] `npm run lint` passes after comparison panel reads both comparison state values.
+- 2026-06-14T17:36Z [USER] User added derived `getHeavierPokemon` helper, `heavierComparisonPokemon`, and rendered the heavier/tie result in the compare panel.
+- 2026-06-14T17:36Z [TOOL] `npm run lint` passes after heavier comparison result.
+- 2026-06-14T17:41Z [USER] User added derived `getSharedPokemonTypes`, `sharedComparisonTypes`, and rendered shared types/None in the compare panel.
+- 2026-06-14T17:41Z [TOOL] `npm run lint` passes after shared types comparison result.
+- 2026-06-14T17:46Z [USER] User added `getTotalBaseStats` reduce helper and rendered total base stats for both comparison Pokemon in the compare panel.
+- 2026-06-14T17:46Z [TOOL] `npm run lint` passes after total base stats rendering.
+- 2026-06-14T17:51Z [USER] User added `getHigherBaseStatsPokemon`, derived `higherBaseStatPokemon`, and rendered higher total base stats/tie in the compare panel.
+- 2026-06-14T17:51Z [TOOL] `npm run lint` passes after higher base stats comparison; core compare-two-Pokemon feature is functionally complete by static inspection.
 
 [DISCOVERIES]
 - 2026-06-11T00:00Z [CODE] App is a Vite React 19 TypeScript project. `App.tsx` orchestrates custom hooks, derived state, search filtering, squad management, and rendering.
