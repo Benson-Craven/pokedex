@@ -12,6 +12,8 @@ import { usePokemonList } from "./hooks/usePokemonList";
 import { usePokemonDetails } from "./hooks/usePokemonDetails";
 import type { PokemonDetails, PokemonListItem } from "./types/pokemon";
 import { usePokedex } from "./hooks/usePokedex";
+import TeamSummary from "./components/TeamSummary";
+import PokemonComparison from "./components/PokemonComparison";
 
 const MAX_SQUAD_SIZE = 6;
 
@@ -150,6 +152,29 @@ function getHigherBaseStatsPokemon(
   return pokemonATotalStats > pokemonBTotalStats ? pokemonA : pokemonB;
 }
 
+function getStatValue(pokemon: PokemonDetails, statName: string) {
+  const matchingStat = pokemon.stats.find(
+    (pokemonStat) => pokemonStat.stat.name === statName,
+  );
+
+  return matchingStat?.base_stat ?? 0;
+}
+
+function getBestPokemonByStat(
+  squadPokemon: PokemonDetails[],
+  statName: string,
+): PokemonDetails | null {
+  if (squadPokemon.length === 0) {
+    return null;
+  }
+
+  return squadPokemon.reduce((bestPokemon, pokemon) =>
+    getStatValue(pokemon, statName) > getStatValue(bestPokemon, statName)
+      ? pokemon
+      : bestPokemon,
+  );
+}
+
 // APP STARTS HERE
 
 function App() {
@@ -260,6 +285,18 @@ function App() {
       ? getHigherBaseStatsPokemon(comparisonPokemonA, comparisonPokemonB)
       : null;
 
+  const fastestPokemon = getBestPokemonByStat(squadPokemon, "speed");
+  const strongestAttackPokemon = getBestPokemonByStat(squadPokemon, "attack");
+  const strongestDefensePokemon = getBestPokemonByStat(squadPokemon, "defense");
+
+  const comparisonPokemonATotalBaseStats = comparisonPokemonA
+    ? getTotalBaseStats(comparisonPokemonA)
+    : 0;
+
+  const comparisonPokemonBTotalBaseStats = comparisonPokemonB
+    ? getTotalBaseStats(comparisonPokemonB)
+    : 0;
+
   return (
     <main className="min-h-screen bg-pokemon-bg text-pokemon-black ">
       <section className="mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center gap-12 px-6 py-12 ">
@@ -285,35 +322,34 @@ function App() {
         />
 
         <section className="w-full rounded-xl border-4 border-pokemon-dark-blue bg-sky-200 p-4 text-pokemon-dark-blue shadow-[6px_6px_0_#003a70] sm:p-6">
-          <div className="mb-4 flex flex-col gap-3 uppercase sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-xs font-black tracking-widest text-pokemon-blue">
-                Battle ready roster
-              </p>
-              <h2 className="font-pokemon-solid text-3xl tracking-wide text-pokemon-yellow pokemon-title-shadow">
-                My Team
-              </h2>
-            </div>
-            <div className="flex flex-wrap items-center gap-4">
-              {uniquePokemonTypes.length > 0 && (
-                <p className="w-fit rounded-full border-2 border-pokemon-dark-blue bg-white px-4 py-2 text-sm font-black shadow-[2px_2px_0_#003a70]">
-                  Types: {uniquePokemonTypes.join(", ")}
+          <div className="mb-5 flex flex-col gap-4 uppercase">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="text-xs font-black tracking-widest text-pokemon-blue">
+                  Battle ready roster
                 </p>
-              )}
-              {squadPokemon.length !== 0 && (
-                <p className="w-fit rounded-full border-2 border-pokemon-dark-blue bg-white px-4 py-2 text-sm font-black shadow-[2px_2px_0_#003a70]">
-                  Average Weight: {averagePokemonWeightKg.toFixed(2)} kg
-                </p>
-              )}
-              {heaviestPokemon && (
-                <p className="w-fit rounded-full border-2 border-pokemon-dark-blue bg-white px-4 py-2 text-sm font-black shadow-[2px_2px_0_#003a70]">
-                  Heaviest: {heaviestPokemon.name} (
-                  {heaviestPokemon.weight / 10} kg)
-                </p>
-              )}
+                <h2 className="font-pokemon-solid text-3xl tracking-wide text-pokemon-yellow pokemon-title-shadow">
+                  My Team
+                </h2>
+              </div>
+
               <p className="w-fit rounded-full border-2 border-pokemon-dark-blue bg-white px-4 py-2 text-sm font-black shadow-[2px_2px_0_#003a70]">
                 {squadPokemon.length}/{MAX_SQUAD_SIZE} selected
               </p>
+            </div>
+
+            <TeamSummary
+              squadSize={squadPokemon.length}
+              uniquePokemonTypes={uniquePokemonTypes}
+              averagePokemonWeightKg={averagePokemonWeightKg}
+              heaviestPokemon={heaviestPokemon}
+              fastestPokemon={fastestPokemon}
+              strongestAttackPokemon={strongestAttackPokemon}
+              strongestDefensePokemon={strongestDefensePokemon}
+              getStatValue={getStatValue}
+            />
+
+            <div className="flex flex-wrap items-center gap-3">
               <label className="flex items-center gap-2 text-sm font-black">
                 Sort By:
                 <select
@@ -395,38 +431,15 @@ function App() {
           )}
 
           {comparisonPokemonA && comparisonPokemonB && (
-            <section className="w-full max-w-2xl rounded-xl border-4 border-pokemon-dark-blue bg-white p-4 uppercase text-pokemon-dark-blue shadow-[6px_6px_0_#003a70]">
-              <h2 className="mb-3 font-pokemon-solid text-2xl tracking-wide text-pokemon-blue">
-                Compare
-              </h2>
-
-              <div className="grid grid-cols-2 gap-3 text-sm font-bold">
-                <p>{comparisonPokemonA.name}</p>
-                <p>{comparisonPokemonB.name}</p>
-
-                <p>Height: {comparisonPokemonA.height / 10} m</p>
-                <p>Height: {comparisonPokemonB.height / 10} m</p>
-
-                <p>Weight: {comparisonPokemonA.weight / 10} kg</p>
-                <p>Weight: {comparisonPokemonB.weight / 10} kg</p>
-
-                <p>Total Base Stats: {getTotalBaseStats(comparisonPokemonA)}</p>
-                <p>Total Base Stats: {getTotalBaseStats(comparisonPokemonB)}</p>
-
-                <p className="col-span-2 rounded-lg border-2 border-pokemon-dark-blue bg-pokemon-yellow px-3 py-2">
-                  Heavier Pokémon: {heavierComparisonPokemon?.name ?? "Tie"}
-                </p>
-                <p className="col-span-2 rounded-lg border-2 border-pokemon-dark-blue bg-white px-3 py-2">
-                  Shared types:{" "}
-                  {sharedComparisonTypes.length > 0
-                    ? sharedComparisonTypes.join(", ")
-                    : "None"}
-                </p>
-                <p className="col-span-2 rounded-lg border-2 border-pokemon-dark-blue bg-pokemon-yellow px-3 py-2">
-                  Higher Base Stats: {higherBaseStatPokemon?.name ?? "Tie"}
-                </p>
-              </div>
-            </section>
+            <PokemonComparison
+              pokemonA={comparisonPokemonA}
+              pokemonB={comparisonPokemonB}
+              pokemonATotalBaseStats={comparisonPokemonATotalBaseStats}
+              pokemonBTotalBaseStats={comparisonPokemonBTotalBaseStats}
+              heavierPokemon={heavierComparisonPokemon}
+              higherBaseStatPokemon={higherBaseStatPokemon}
+              sharedComparisonTypes={sharedComparisonTypes}
+            />
           )}
 
           <PokemonList

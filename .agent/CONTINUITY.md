@@ -4,6 +4,9 @@
 - 2026-06-14T14:39Z [USER] User wants to work coaching-first on making `src/App.tsx` more concise; no server startup.
 - 2026-06-14T14:52Z [USER] User wants coaching-first work on improving the selected Pokemon card with more information; no server startup.
 - 2026-06-14T17:12Z [USER] User chose compare-two-Pokemon as the next coaching-first feature; no server startup.
+- 2026-06-15T08:50Z [USER] User asked Codex to add the team stat summary code and reorganize the cluttered squad section; no server startup.
+- 2026-06-15T09:12Z [USER] User chose `TeamSummary` as the next component-boundary learning exercise; no server startup.
+- 2026-06-15T09:14Z [USER] User asked for coaching-first suggestions for a new feature; no server startup.
 
 [DECISIONS]
 - 2026-06-11T00:00Z [ASSUMPTION] Treat the request as coaching/analysis only; no app code edits are needed.
@@ -40,6 +43,13 @@
 - 2026-06-14T17:46Z [TOOL] `npm run lint` passes after total base stats rendering.
 - 2026-06-14T17:51Z [USER] User added `getHigherBaseStatsPokemon`, derived `higherBaseStatPokemon`, and rendered higher total base stats/tie in the compare panel.
 - 2026-06-14T17:51Z [TOOL] `npm run lint` passes after higher base stats comparison; core compare-two-Pokemon feature is functionally complete by static inspection.
+- 2026-06-15T08:50Z [CODE] Added team stat summary helpers in `src/App.tsx` (`getStatValue`, `getBestPokemonByStat`) and rendered fastest, attack, and defense stat leaders in the squad section.
+- 2026-06-15T08:50Z [CODE] Reorganized the `My Team` section into header/count, Team overview, Stat leaders, controls, and squad grid groups to reduce visual clutter.
+- 2026-06-15T09:12Z [USER] User extracted the squad summary JSX into `src/components/TeamSummary.tsx` with already-derived props, and `src/App.tsx` now imports/renders `TeamSummary`.
+- 2026-06-15T09:24Z [USER] User implemented `src/components/PokemonComparison.tsx` extraction and asked for assessment; no server startup.
+- 2026-06-15T09:26Z [USER] User fixed `PokemonComparisonProps` by making `pokemonA` and `pokemonB` non-null `PokemonDetails`.
+- 2026-06-15T09:32Z [USER] User changed `PokemonComparison` to receive precomputed total base stat numbers instead of `getTotalBaseStats`.
+- 2026-06-15T09:34Z [USER] User fixed `PokemonComparison` sprite rendering by guarding nullable `front_default` image URLs.
 
 [DISCOVERIES]
 - 2026-06-11T00:00Z [CODE] App is a Vite React 19 TypeScript project. `App.tsx` orchestrates custom hooks, derived state, search filtering, squad management, and rendering.
@@ -48,6 +58,10 @@
 - 2026-06-11T22:16Z [CODE] `App.tsx` currently has single `isSquadFull` and working `filterPokemonByName`; earlier duplicate-helper/search typo note is no longer current.
 - 2026-06-14T14:39Z [CODE] `src/App.tsx` is 374 lines; wordiness is concentrated in squad derived helpers at lines 30-109, derived values at lines 190-203, and squad panel JSX at lines 232-320.
 - 2026-06-14T14:52Z [CODE] Selected-card data flow: `PokemonList` calls `fetchPokemonDetails`; `usePokemonDetails` stores `selectedPokemon`; `App.tsx` passes it to `PokemonCard`; `PokemonCard` currently renders id, name, sprite, height, weight, types, and add status.
+- 2026-06-15T09:24Z [CODE] `PokemonComparisonProps` currently types `pokemonA` and `pokemonB` as `PokemonDetails | null`, but the component dereferences them directly; parent render guard ensures runtime non-null but TypeScript correctly rejects the component contract.
+- 2026-06-15T09:26Z [CODE] Supersedes 2026-06-15T09:24Z discovery: `PokemonComparisonProps` now correctly requires non-null `PokemonDetails` for `pokemonA` and `pokemonB`.
+- 2026-06-15T09:32Z [CODE] `PokemonComparison` now renders sprites directly with `src={pokemon*.sprites.front_default}`; `front_default` is typed `string | null`, so image rendering needs the same null guard pattern used in `PokemonCard`.
+- 2026-06-15T09:34Z [CODE] Supersedes 2026-06-15T09:32Z discovery: `PokemonComparison` now guards `pokemon*.sprites.front_default` before rendering `<img>`.
 
 [OUTCOMES]
 - 2026-06-11T00:00Z [ASSUMPTION] Final response should map specific React learning topics to this repo's existing files and suggest small exercises.
@@ -66,3 +80,9 @@
 - 2026-06-14T14:46Z [TOOL] `npm run lint` passed after `App.tsx` cleanup. `npm run build` failed during Vite startup because local `node_modules` is missing Rolldown optional native package `@rolldown/binding-darwin-x64`; TypeScript completed before the Vite/Rolldown failure.
 - 2026-06-14T16:52Z [TOOL] `npm run lint` passed after user-added selected card abilities and stats sections; no server startup or browser verification was run.
 - 2026-06-14T17:02Z [TOOL] `npm run lint` passed after user-added stat-name formatting helper; no server startup or browser verification was run.
+- 2026-06-15T08:50Z [TOOL] `npm run lint` and `npm run build` passed after team stat summary and squad section reorganization; no server startup or browser verification was run.
+- 2026-06-15T09:12Z [TOOL] `npm run lint` and `npm run build` passed after `TeamSummary` extraction; no server startup or browser verification was run.
+- 2026-06-15T09:24Z [TOOL] `npm run lint` passes after `PokemonComparison` extraction. `npm run build` fails with TS18047/TS2345 in `src/components/PokemonComparison.tsx` because nullable `pokemonA`/`pokemonB` props are used as non-null values.
+- 2026-06-15T09:26Z [TOOL] `npm run lint` and `npm run build` pass after `PokemonComparisonProps` non-null fix; no server startup or browser verification was run.
+- 2026-06-15T09:32Z [TOOL] `npm run lint` passes after precomputed total stat prop change. `npm run build` fails in `PokemonComparison.tsx` because `<img src>` receives `string | null` from `sprites.front_default`.
+- 2026-06-15T09:34Z [TOOL] `npm run lint` and `npm run build` pass after `PokemonComparison` sprite null guard fix; no server startup or browser verification was run.
