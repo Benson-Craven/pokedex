@@ -8,6 +8,7 @@ type TeamSummaryProps = {
   fastestPokemon: PokemonDetails | null;
   strongestAttackPokemon: PokemonDetails | null;
   strongestDefensePokemon: PokemonDetails | null;
+  missingCoverageTypes: string[];
   getStatValue: (pokemon: PokemonDetails, statName: string) => number;
 };
 
@@ -19,6 +20,7 @@ const TeamSummary = ({
   fastestPokemon,
   strongestAttackPokemon,
   strongestDefensePokemon,
+  missingCoverageTypes,
   getStatValue,
 }: TeamSummaryProps) => {
   return (
@@ -45,6 +47,12 @@ const TeamSummary = ({
             <p className="rounded-full border-2 border-pokemon-dark-blue bg-white px-3 py-1.5 text-xs font-black shadow-[2px_2px_0_#003a70]">
               Heaviest: {heaviestPokemon.name} ({heaviestPokemon.weight / 10}{" "}
               kg)
+            </p>
+          )}
+
+          {missingCoverageTypes.length > 0 && (
+            <p className="rounded-full border-2 border-pokemon-dark-blue bg-amber-400 px-3 py-1.5 text-xs font-black shadow-[2px_2px_0_#003a70]">
+              Maybe Add: {missingCoverageTypes[0]}
             </p>
           )}
 

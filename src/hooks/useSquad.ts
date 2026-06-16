@@ -46,10 +46,15 @@ export function useSquad() {
     setSquadPokemon([]);
   }
 
+  function setSquad(nextSquad: PokemonDetails[]) {
+    setSquadPokemon(nextSquad.slice(0, 6));
+  }
+
   return {
     squadPokemon,
     addToSquad,
     removeFromSquad,
     clearSquad,
+    setSquad,
   };
 }

@@ -1,4 +1,5 @@
 import type { PokemonDetails } from "../types/pokemon";
+import { formatStatName } from "../utils/formatStatName";
 
 type PokemonComparisonProps = {
   pokemonA: PokemonDetails;
@@ -10,6 +11,43 @@ type PokemonComparisonProps = {
   sharedComparisonTypes: string[];
 };
 
+type StatWinner = "a" | "b" | "tie";
+
+type ComparisonStatRow = {
+  name: string;
+  pokemonAValue: number;
+  pokemonBValue: number;
+  winner: StatWinner;
+};
+
+function getComparisonStatRows(
+  pokemonA: PokemonDetails,
+  pokemonB: PokemonDetails,
+): ComparisonStatRow[] {
+  return pokemonA.stats.map((pokemonAStat) => {
+    const pokemonBStat = pokemonB.stats.find(
+      (pokemonStat) => pokemonStat.stat.name === pokemonAStat.stat.name,
+    );
+
+    const pokemonAValue = pokemonAStat.base_stat;
+    const pokemonBValue = pokemonBStat?.base_stat ?? 0;
+
+    const winner =
+      pokemonAValue === pokemonBValue
+        ? "tie"
+        : pokemonAValue > pokemonBValue
+          ? "a"
+          : "b";
+
+    return {
+      name: pokemonAStat.stat.name,
+      pokemonAValue,
+      pokemonBValue,
+      winner,
+    };
+  });
+}
+
 const PokemonComparison = ({
   pokemonA,
   pokemonB,
@@ -19,6 +57,8 @@ const PokemonComparison = ({
   higherBaseStatPokemon,
   sharedComparisonTypes,
 }: PokemonComparisonProps) => {
+  const comparisonStatRows = getComparisonStatRows(pokemonA, pokemonB);
+
   return (
     <section className="w-full max-w-2xl rounded-xl border-4 border-pokemon-dark-blue bg-white p-4 uppercase text-pokemon-dark-blue shadow-[6px_6px_0_#003a70]">
       <h2 className="mb-3 font-pokemon-solid text-2xl tracking-wide text-pokemon-blue">
@@ -55,6 +95,23 @@ const PokemonComparison = ({
 
         <p>Total Base Stats: {pokemonATotalBaseStats}</p>
         <p>Total Base Stats: {pokemonBTotalBaseStats}</p>
+
+        <div className="col-span-2 grid gap-2">
+          {comparisonStatRows.map((statRow) => (
+            <div
+              key={statRow.name}
+              className="grid grid-cols-3 rounded-lg border-2 border-pokemon-dark-blue bg-white px-3 py-2"
+            >
+              <p>{formatStatName(statRow.name)}</p>
+              <p className={statRow.winner === "a" ? "text-pokemon-blue" : ""}>
+                {statRow.pokemonAValue}
+              </p>
+              <p className={statRow.winner === "b" ? "text-pokemon-blue" : ""}>
+                {statRow.pokemonBValue}
+              </p>
+            </div>
+          ))}
+        </div>
 
         <p className="col-span-2 rounded-lg border-2 border-pokemon-dark-blue bg-pokemon-yellow px-3 py-2">
           Heavier Pokémon: {heavierPokemon?.name ?? "Tie"}

@@ -7,6 +7,17 @@
 - 2026-06-15T08:50Z [USER] User asked Codex to add the team stat summary code and reorganize the cluttered squad section; no server startup.
 - 2026-06-15T09:12Z [USER] User chose `TeamSummary` as the next component-boundary learning exercise; no server startup.
 - 2026-06-15T09:14Z [USER] User asked for coaching-first suggestions for a new feature; no server startup.
+- 2026-06-15T10:58Z [USER] User asked for coaching-first suggestions for a new feature; read continuity first; no server startup.
+- 2026-06-15T11:12Z [USER] User corrected assistant: undo implementation and return to teaching-first mode for next feature.
+- 2026-06-15T11:28Z [USER] User wants coaching-first work on a random squad generate button; no server startup.
+- 2026-06-16T08:15Z [USER] User asked for assessment of their `src/App.tsx` random squad implementation.
+- 2026-06-16T08:22Z [USER] User wants coaching-first guidance for adding a favorite Pokemon feature; no server startup.
+- 2026-06-16T08:34Z [USER] User asked for assessment of their favorite Pokemon implementation so far; no server startup.
+- 2026-06-16T09:58Z [USER] User wired favorite Pokemon hook into `App.tsx` and `PokemonCard`; asked for next coaching checkpoint.
+- 2026-06-16T10:03Z [USER] User completed favorite hook cleanup checkpoint and asked for verification/next guidance.
+- 2026-06-16T10:16Z [USER] User completed favorite toggle checkpoint and asked for verification/next guidance.
+- 2026-06-16T10:29Z [USER] User added favorite indicators to `PokemonList` and asked for coaching assistance.
+- 2026-06-16T11:03Z [USER] User reported `PokemonList` hearts are not showing favorited Pokemon correctly.
 
 [DECISIONS]
 - 2026-06-11T00:00Z [ASSUMPTION] Treat the request as coaching/analysis only; no app code edits are needed.
@@ -50,6 +61,24 @@
 - 2026-06-15T09:26Z [USER] User fixed `PokemonComparisonProps` by making `pokemonA` and `pokemonB` non-null `PokemonDetails`.
 - 2026-06-15T09:32Z [USER] User changed `PokemonComparison` to receive precomputed total base stat numbers instead of `getTotalBaseStats`.
 - 2026-06-15T09:34Z [USER] User fixed `PokemonComparison` sprite rendering by guarding nullable `front_default` image URLs.
+- 2026-06-15T10:44Z [USER] User implemented derived stat rows in `PokemonComparison`; no server startup.
+- 2026-06-15T10:44Z [TOOL] `npm run lint` and `npm run build` fail after derived stat rows because old comparison props/derived values are now unused in `App.tsx`, and `getComparisonStatRows` is typed as returning `ComparisonStatRow` instead of `ComparisonStatRow[]`.
+- 2026-06-15T10:46Z [CODE] Restored option 1 for `PokemonComparison`: existing sprites, height, weight, total stats, heavier/shared-types/higher-stats summary remain, and derived per-stat comparison rows render additively.
+- 2026-06-15T10:51Z [USER] User asked to undo assistant-written shared `formatStatName` refactor and continue coaching-first per AGENTS.md.
+- 2026-06-15T10:51Z [CODE] Reverted assistant-created `src/utils/formatStatName.ts` and restored local `formatStatName` helpers in `PokemonCard` and `PokemonComparison`.
+- 2026-06-15T10:53Z [USER] User implemented shared stat-name formatting helper; file is currently named `src/utils/formatStratName.ts` while exporting `formatStatName`.
+- 2026-06-15T11:07Z [USER] User implemented `getMissingCoverageTypes`, derived `missingCoverageTypes`, passed it to `TeamSummary`, and rendered missing coverage text.
+- 2026-06-15T11:08Z [USER] User fixed missing coverage render guard to use `missingCoverageTypes.length > 0`.
+- 2026-06-15T11:12Z [CODE] Reverted assistant-added coverage score/count/progress bar changes; retained user-created missing coverage hints.
+- 2026-06-15T11:34Z [USER] User added `setSquad(nextSquad: PokemonDetails[])` to `useSquad` and destructured it in `App.tsx` for the random squad feature.
+- 2026-06-15T11:40Z [USER] User imported `getPokemonDetails` in `App.tsx` and added `getRandomPokemonItems(pokedex, count)` helper for random squad generation.
+- 2026-06-15T11:44Z [USER] User added `handleGenerateRandomSquad` in `App.tsx` and rendered a disabled-when-pokedex-unavailable `Random team` button in the squad controls.
+- 2026-06-16T08:18Z [USER] User wired random squad loading/error state into JSX and passed `controller.signal` to `getPokemonDetails`.
+- 2026-06-16T08:34Z [USER] User created `src/hooks/useFavouritePokemon.ts` with localStorage-backed `number[]` favorite IDs and `addToFavourites`; not yet wired into `App.tsx` or `PokemonCard`.
+- 2026-06-16T09:58Z [USER] User passed `isFavourite` and `onFavourite` props to `PokemonCard`, rendered a heart button, and imported/called `useFavouritePokemon` in `App.tsx`.
+- 2026-06-16T10:03Z [USER] User updated `App.tsx` to use `isFavouritePokemon(selectedPokemon.id)` and updated `useFavouritePokemon` to check `currentFaves.length` inside the setter callback.
+- 2026-06-16T10:16Z [USER] User renamed favorite mutation to `toggleFavouritePokemon`, added removal when already favorited, and updated `App.tsx` to call `toggleFavouritePokemon(selectedPokemon.id)`.
+- 2026-06-16T10:29Z [USER] User passed `isFavouritePokemon` into `PokemonList` as `isFavourite` and renders heart state from `isFavourite(pokemonItem.id)`.
 
 [DISCOVERIES]
 - 2026-06-11T00:00Z [CODE] App is a Vite React 19 TypeScript project. `App.tsx` orchestrates custom hooks, derived state, search filtering, squad management, and rendering.
@@ -62,6 +91,16 @@
 - 2026-06-15T09:26Z [CODE] Supersedes 2026-06-15T09:24Z discovery: `PokemonComparisonProps` now correctly requires non-null `PokemonDetails` for `pokemonA` and `pokemonB`.
 - 2026-06-15T09:32Z [CODE] `PokemonComparison` now renders sprites directly with `src={pokemon*.sprites.front_default}`; `front_default` is typed `string | null`, so image rendering needs the same null guard pattern used in `PokemonCard`.
 - 2026-06-15T09:34Z [CODE] Supersedes 2026-06-15T09:32Z discovery: `PokemonComparison` now guards `pokemon*.sprites.front_default` before rendering `<img>`.
+- 2026-06-15T10:44Z [CODE] `PokemonComparison` now derives comparison stat rows locally from `pokemonA.stats` and `pokemonB.stats`; current implementation removed prior sprite/height/weight/summary comparison rendering.
+- 2026-06-15T11:07Z [CODE] `TeamSummary` currently guards missing coverage rendering with `{missingCoverageTypes && (...)}`; empty arrays are truthy, so the chip renders even when the list is empty.
+- 2026-06-16T08:15Z [CODE] `App.tsx` random squad request state is created and written, but `isRandomSquadLoading` and `randomSquadError` are not read in JSX, causing lint failures.
+- 2026-06-16T08:18Z [CODE] Supersedes 2026-06-16T08:15Z discovery: random squad request state is now read in JSX, and detail fetches receive `controller.signal`.
+- 2026-06-16T08:34Z [CODE] `useFavouritePokemon` uses functional updater parameter `currentFaves`, but returns/checks outer `favouritePokemon` state inside the updater; this should use `currentFaves` to avoid stale-state bugs.
+- 2026-06-16T09:58Z [CODE] `useFavouritePokemon` fixed duplicate check to use `currentFaves.some(...)`, but still checks outer `favouritePokemon.length` inside the updater; `App.tsx` also destructures `isFavouritePokemon` without using it.
+- 2026-06-16T10:03Z [CODE] Supersedes 2026-06-16T09:58Z favorite-hook discovery: stale updater usage and unused `isFavouritePokemon` are fixed; current behavior adds favorites but does not remove/toggle an existing favorite.
+- 2026-06-16T10:16Z [CODE] Supersedes 2026-06-16T10:03Z favorite behavior discovery: favorite button now toggles add/remove. `toggleFavouritePokemon` still has redundant `alreadyFaved ||` in the max-count guard after already-faved branch returns.
+- 2026-06-16T10:29Z [CODE] `PokemonListItem` includes `id`, so `PokemonList` can derive favorite display directly with `pokemonItem.id`; prop naming could be clearer as `isPokemonFavourite`.
+- 2026-06-16T11:03Z [CODE] Supersedes 2026-06-16T10:29Z discovery: `PokemonListItem` type includes `id`, but `getPokemonList` returns raw PokeAPI list `results` with only `name` and `url`; `PokemonList` checking `pokemonItem.id` can read `undefined`, so favorite hearts do not match stored numeric detail IDs.
 
 [OUTCOMES]
 - 2026-06-11T00:00Z [ASSUMPTION] Final response should map specific React learning topics to this repo's existing files and suggest small exercises.
@@ -86,3 +125,14 @@
 - 2026-06-15T09:26Z [TOOL] `npm run lint` and `npm run build` pass after `PokemonComparisonProps` non-null fix; no server startup or browser verification was run.
 - 2026-06-15T09:32Z [TOOL] `npm run lint` passes after precomputed total stat prop change. `npm run build` fails in `PokemonComparison.tsx` because `<img src>` receives `string | null` from `sprites.front_default`.
 - 2026-06-15T09:34Z [TOOL] `npm run lint` and `npm run build` pass after `PokemonComparison` sprite null guard fix; no server startup or browser verification was run.
+- 2026-06-15T10:46Z [TOOL] `npm run lint` and `npm run build` pass after restoring comparison summary props/UI and adding stat rows; no server startup or browser verification was run.
+- 2026-06-15T10:53Z [TOOL] `npm run lint` and `npm run build` pass after user-created shared stat-name formatting helper; no server startup or browser verification was run.
+- 2026-06-15T11:08Z [TOOL] `npm run lint` and `npm run build` pass after team coverage hints; no server startup or browser verification was run.
+- 2026-06-15T11:44Z [TOOL] `npm run lint` passes after random squad handler/button; no server startup or browser verification was run.
+- 2026-06-16T08:15Z [TOOL] `npm run lint` fails in `src/App.tsx` because `isRandomSquadLoading` and `randomSquadError` are assigned but never used.
+- 2026-06-16T08:18Z [TOOL] `npm run lint` passes after user wired random squad loading/error UI and abort signal.
+- 2026-06-16T08:34Z [TOOL] `npm run lint` and `npm run build` pass with current favorite hook present but not wired into the UI.
+- 2026-06-16T09:58Z [TOOL] `npm run lint` and `npm run build` fail because `App.tsx` destructures `isFavouritePokemon` from `useFavouritePokemon` but does not read it.
+- 2026-06-16T10:03Z [TOOL] `npm run lint` and `npm run build` pass after favorite hook cleanup and `App.tsx` derived favorite state fix; no server startup.
+- 2026-06-16T10:16Z [TOOL] `npm run lint` and `npm run build` pass after favorite toggle implementation; no server startup.
+- 2026-06-16T10:29Z [TOOL] `npm run lint` and `npm run build` pass after `PokemonList` favorite indicators; no server startup.

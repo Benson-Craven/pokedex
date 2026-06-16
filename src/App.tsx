@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import PokemonCard, { PokemonCardSkeleton } from "./components/PokemonCard";
 import PokemonSearchBar from "./components/PokemonSearchBar";
 import PokemonSquadCard, {
   EmptySquadSlot,
 } from "./components/PokemonSquadCard";
+
+import { getPokemonDetails } from "./api/pokemon";
 
 import PokemonList from "./components/PokemonList";
 import { useSquad } from "./hooks/useSquad";
@@ -14,8 +16,22 @@ import type { PokemonDetails, PokemonListItem } from "./types/pokemon";
 import { usePokedex } from "./hooks/usePokedex";
 import TeamSummary from "./components/TeamSummary";
 import PokemonComparison from "./components/PokemonComparison";
+import { useFavouritePokemon } from "./hooks/useFavouritePokemon";
 
 const MAX_SQUAD_SIZE = 6;
+
+const RECOMMENDED_COVERAGE_TYPES = [
+  "fire",
+  "water",
+  "grass",
+  "electric",
+  "ground",
+  "flying",
+  "psychic",
+  "ice",
+  "dragon",
+  "fairy",
+];
 
 function isPokemonInSquad(pokemonId: number, squadPokemon: PokemonDetails[]) {
   return squadPokemon.some((pokemon) => pokemon.id === pokemonId);
@@ -74,6 +90,14 @@ function getUniquePokemonTypes(squadPokemon: PokemonDetails[]) {
   }
 
   return Array.from(types);
+}
+
+function getMissingCoverageTypes(uniquePokemonTypes: string[]) {
+  const teamTypeSet = new Set(uniquePokemonTypes);
+
+  return RECOMMENDED_COVERAGE_TYPES.filter(
+    (typeName) => !teamTypeSet.has(typeName),
+  );
 }
 
 type SquadSortMode = "added" | "name" | "weight";
@@ -175,6 +199,10 @@ function getBestPokemonByStat(
   );
 }
 
+function getRandomPokemonItems(pokedex: PokemonListItem[], count: number) {
+  return [...pokedex].sort(() => Math.random() - 0.5).slice(0, count);
+}
+
 // APP STARTS HERE
 
 function App() {
@@ -189,7 +217,8 @@ function App() {
     INITIAL_POKEMON_LIST_URL,
   } = usePokemonList();
 
-  const { squadPokemon, addToSquad, removeFromSquad, clearSquad } = useSquad();
+  const { squadPokemon, addToSquad, removeFromSquad, clearSquad, setSquad } =
+    useSquad();
 
   const {
     pokedex,
@@ -206,6 +235,12 @@ function App() {
     fetchPokemonDetails,
     setSelectedPokemon,
   } = usePokemonDetails();
+
+  const { toggleFavouritePokemon, isFavouritePokemon } = useFavouritePokemon();
+
+  const isSelectedPokemonFavourite = selectedPokemon
+    ? isFavouritePokemon(selectedPokemon.id)
+    : false;
 
   const isSelectedPokemonInSquad = selectedPokemon
     ? isPokemonInSquad(selectedPokemon.id, squadPokemon)
@@ -230,6 +265,44 @@ function App() {
   const [comparisonPokemonB, setComparisonPokemonB] =
     useState<PokemonDetails | null>(null);
 
+  const [isRandomSquadLoading, setIsRandomSquadLoading] = useState(false);
+  const [randomSquadError, setRandomSquadError] = useState<Error | null>(null);
+  const randomSquadAbortController = useRef<AbortController | null>(null);
+
+  async function handleGenerateRandomSquad() {
+    randomSquadAbortController.current?.abort();
+    const controller = new AbortController();
+    randomSquadAbortController.current = controller;
+
+    setIsRandomSquadLoading(true);
+    setRandomSquadError(null);
+
+    try {
+      const randomPokemonItems = getRandomPokemonItems(pokedex, MAX_SQUAD_SIZE);
+
+      const randomPokemonDetails = await Promise.all(
+        randomPokemonItems.map((pokemonItem) =>
+          getPokemonDetails(pokemonItem.url, controller.signal),
+        ),
+      );
+      if (randomSquadAbortController.current === controller) {
+        setSquad(randomPokemonDetails);
+      }
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") {
+        return;
+      }
+      if (randomSquadAbortController.current === controller) {
+        const e = err instanceof Error ? err : new Error(String(err));
+        setRandomSquadError(e);
+      }
+    } finally {
+      if (randomSquadAbortController.current === controller) {
+        setIsRandomSquadLoading(false);
+      }
+    }
+  }
+
   useEffect(() => {
     fetchPokemonList(INITIAL_POKEMON_LIST_URL);
     fetchPokedex(INITIAL_POKEDEX_URL);
@@ -239,6 +312,12 @@ function App() {
     INITIAL_POKEDEX_URL,
     INITIAL_POKEMON_LIST_URL,
   ]);
+
+  useEffect(() => {
+    return () => {
+      randomSquadAbortController.current?.abort();
+    };
+  }, []);
 
   if (isInitialListLoading) {
     return <p>Loading...</p>;
@@ -297,6 +376,8 @@ function App() {
     ? getTotalBaseStats(comparisonPokemonB)
     : 0;
 
+  const missingCoverageTypes = getMissingCoverageTypes(uniquePokemonTypes);
+
   return (
     <main className="min-h-screen bg-pokemon-bg text-pokemon-black ">
       <section className="mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center gap-12 px-6 py-12 ">
@@ -346,6 +427,7 @@ function App() {
               fastestPokemon={fastestPokemon}
               strongestAttackPokemon={strongestAttackPokemon}
               strongestDefensePokemon={strongestDefensePokemon}
+              missingCoverageTypes={missingCoverageTypes}
               getStatValue={getStatValue}
             />
 
@@ -387,6 +469,19 @@ function App() {
               >
                 Clear team
               </button>
+              <button
+                className="w-fit cursor-pointer rounded-full border-2 border-pokemon-dark-blue bg-pokemon-yellow px-4 py-2 font-black text-pokemon-dark-blue shadow-[2px_2px_0_#003a70] transition disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-600"
+                type="button"
+                onClick={handleGenerateRandomSquad}
+                disabled={
+                  isPokedexLoading ||
+                  pokedex.length === 0 ||
+                  isRandomSquadLoading
+                }
+              >
+                {isRandomSquadLoading ? "Generating..." : "Random Team"}
+              </button>
+              {randomSquadError && <p>Error! {randomSquadError.message}</p>}
             </div>
           </div>
 
@@ -427,6 +522,8 @@ function App() {
               }
               onCompareA={() => setComparisonPokemonA(selectedPokemon)}
               onCompareB={() => setComparisonPokemonB(selectedPokemon)}
+              isFavourite={isSelectedPokemonFavourite}
+              onFavourite={() => toggleFavouritePokemon(selectedPokemon.id)}
             />
           )}
 
@@ -449,6 +546,7 @@ function App() {
             pokedexError={pokedexError}
             onSelectPokemon={fetchPokemonDetails}
             isPokemonInSquad={isPokemonUrlInSquad}
+            isPokemonFavourite={isFavouritePokemon}
           />
 
           {!isSearching && (

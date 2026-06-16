@@ -7,6 +7,7 @@ type PokemonListProps = {
   pokedexError: Error | null;
   onSelectPokemon: (url: string) => void;
   isPokemonInSquad: (url: string) => boolean;
+  isPokemonFavourite: (pokemonId: number) => boolean;
 };
 
 const PokemonList = ({
@@ -16,6 +17,7 @@ const PokemonList = ({
   pokedexError,
   onSelectPokemon,
   isPokemonInSquad,
+  isPokemonFavourite,
 }: PokemonListProps) => {
   return (
     <div className="flex w-full max-w-2xl flex-col gap-5">
@@ -29,6 +31,7 @@ const PokemonList = ({
         ) : (
           pokemon.map((pokemonItem) => {
             const isInSquad = isPokemonInSquad(pokemonItem.url);
+            const isFavourite = isPokemonFavourite(pokemonItem.id);
 
             const buttonClassName = isInSquad
               ? "cursor-pointer rounded-xl border-4 border-pokemon-dark-blue bg-slate-200 px-8 py-4 font-bold uppercase text-pokemon-dark-blue opacity-75 shadow-[2px_2px_0_#003a70] transition"
@@ -41,7 +44,7 @@ const PokemonList = ({
                 onClick={() => onSelectPokemon(pokemonItem.url)}
               >
                 {pokemonItem.name}
-                {isInSquad ? " - In team" : ""}
+                {isInSquad ? " - In team" : ""} {isFavourite ? "❤️" : "🤍"}
               </button>
             );
           })

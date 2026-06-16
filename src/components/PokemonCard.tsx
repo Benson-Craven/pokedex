@@ -1,4 +1,5 @@
 import type { PokemonDetails } from "../types/pokemon";
+import { formatStatName } from "../utils/formatStatName";
 
 import PokemonTypeBadge from "./PokemonTypeBadge";
 
@@ -11,6 +12,8 @@ type PokemonCardProps = {
   squadStatus: SquadStatus;
   onCompareA: () => void;
   onCompareB: () => void;
+  isFavourite: boolean;
+  onFavourite: () => void;
 };
 
 const addButtonLabelByStatus = {
@@ -26,13 +29,6 @@ const addButtonClassByStatus = {
   full: "bg-pokemon-red text-white cursor-not-allowed opacity-80",
 };
 
-function formatStatName(statName: string) {
-  return statName
-    .split("-")
-    .map((word) => word[0].toUpperCase() + word.slice(1))
-    .join(" ");
-}
-
 const PokemonCard = ({
   pokemon,
   onClear,
@@ -40,6 +36,8 @@ const PokemonCard = ({
   squadStatus,
   onCompareA,
   onCompareB,
+  isFavourite,
+  onFavourite,
 }: PokemonCardProps) => {
   const canAdd = squadStatus === "available";
   const addButtonLabel = addButtonLabelByStatus[squadStatus];
@@ -136,6 +134,13 @@ const PokemonCard = ({
           onClick={onAdd}
         >
           {addButtonLabel}
+        </button>
+        <button
+          className="cursor-pointer hover:animate-bounce duration-300"
+          type="button"
+          onClick={onFavourite}
+        >
+          {isFavourite ? "❤️" : "🤍"}
         </button>
       </div>
     </article>

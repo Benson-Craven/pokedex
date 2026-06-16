@@ -12,7 +12,18 @@ export async function getPokemonList(
 
   const data: PokemonListResponse = await res.json();
 
-  return data;
+  return {
+    ...data,
+    results: data.results.map((pokemon) => ({
+      ...pokemon,
+      id: getPokemonIdFromUrl(pokemon.url),
+    })),
+  };
+}
+
+function getPokemonIdFromUrl(url: string) {
+  const urlParts = url.split("/").filter(Boolean);
+  return Number(urlParts[urlParts.length - 1]);
 }
 
 export async function getPokemonDetails(
