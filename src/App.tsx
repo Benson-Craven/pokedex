@@ -18,6 +18,8 @@ import TeamSummary from "./components/TeamSummary";
 import PokemonComparison from "./components/PokemonComparison";
 import { useFavouritePokemon } from "./hooks/useFavouritePokemon";
 
+type PokemonListFilter = "all" | "favourites";
+
 const MAX_SQUAD_SIZE = 6;
 
 const RECOMMENDED_COVERAGE_TYPES = [
@@ -203,7 +205,7 @@ function getRandomPokemonItems(pokedex: PokemonListItem[], count: number) {
   return [...pokedex].sort(() => Math.random() - 0.5).slice(0, count);
 }
 
-// APP STARTS HERE
+// TODO APP STARTS HERE
 
 function App() {
   const {
@@ -269,6 +271,9 @@ function App() {
   const [randomSquadError, setRandomSquadError] = useState<Error | null>(null);
   const randomSquadAbortController = useRef<AbortController | null>(null);
 
+  const [pokemonListFilter, setPokemonListFilter] =
+    useState<PokemonListFilter>("all");
+
   async function handleGenerateRandomSquad() {
     randomSquadAbortController.current?.abort();
     const controller = new AbortController();
@@ -332,6 +337,14 @@ function App() {
   const filteredPokemon = isSearching
     ? filterPokemonByName(pokedex, searchPokemon)
     : pokemon;
+
+  const visiblePokemon =
+    pokemonListFilter === "favourites"
+      ? filteredPokemon.filter((pokemonItem) =>
+          isFavouritePokemon(pokemonItem.id),
+        )
+      : filteredPokemon;
+
   const emptySquadSlots = Array.from({
     length: MAX_SQUAD_SIZE - squadPokemon.length,
   });
@@ -538,9 +551,20 @@ function App() {
               sharedComparisonTypes={sharedComparisonTypes}
             />
           )}
+          <select
+            value={pokemonListFilter}
+            onChange={(event) =>
+              setPokemonListFilter(event.target.value as PokemonListFilter)
+            }
+            className="rounded-full border-2 border-pokemon-dark-blue bg-white px-3 py-2 font-black shadow-[2px_2px_0_#003a70] cursor-pointer"
+          >
+            <option value="all">All</option>
+
+            <option value="favourites">Favourites</option>
+          </select>
 
           <PokemonList
-            pokemon={filteredPokemon}
+            pokemon={visiblePokemon}
             isSearching={isSearching}
             isPokedexLoading={isPokedexLoading}
             pokedexError={pokedexError}
