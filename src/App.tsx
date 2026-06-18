@@ -17,6 +17,8 @@ import { usePokedex } from "./hooks/usePokedex";
 import TeamSummary from "./components/TeamSummary";
 import PokemonComparison from "./components/PokemonComparison";
 import { useFavouritePokemon } from "./hooks/useFavouritePokemon";
+import { usePokemonEvolutionChain } from "./hooks/usePokemonEvolutionChain";
+import PokemonEvolutionChainPanel from "./components/PokemonEvolutionChainPanel";
 
 type PokemonListFilter = "all" | "favourites";
 
@@ -246,6 +248,9 @@ function App() {
     favouritePokemon,
     MAX_FAV_POKEMON,
   } = useFavouritePokemon();
+
+  const { evolutionPokemon, isEvolutionChainLoading, evolutionChainError } =
+    usePokemonEvolutionChain(selectedPokemon?.id ?? null);
 
   const isSelectedPokemonFavourite = selectedPokemon
     ? isFavouritePokemon(selectedPokemon.id)
@@ -580,6 +585,13 @@ function App() {
               onCompareB={() => setComparisonPokemonB(selectedPokemon)}
               isFavourite={isSelectedPokemonFavourite}
               onFavourite={() => toggleFavouritePokemon(selectedPokemon.id)}
+            />
+          )}
+          {selectedPokemon && (
+            <PokemonEvolutionChainPanel
+              evolutionPokemon={evolutionPokemon}
+              isLoading={isEvolutionChainLoading}
+              error={evolutionChainError}
             />
           )}
 

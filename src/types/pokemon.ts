@@ -17,6 +17,7 @@ export type PokemonDetails = {
       name: string;
     };
   }[];
+
   abilities: {
     ability: {
       name: string;
@@ -29,6 +30,32 @@ export type PokemonDetails = {
       name: string;
     };
   }[];
+};
+
+export type PokemonSpecies = {
+  id: number;
+  name: string;
+  evolution_chain: {
+    url: string;
+  };
+};
+
+export type EvolutionChainLink = {
+  species: {
+    name: string;
+    url: string;
+  };
+  evolves_to: EvolutionChainLink[];
+};
+
+export type PokemonEvolutionChain = {
+  id: number;
+  chain: EvolutionChainLink;
+};
+
+export type EvolutionPokemon = {
+  name: string;
+  spriteUrl: string | null;
 };
 
 export type PokemonListResponse = {

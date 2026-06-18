@@ -1,4 +1,9 @@
-import type { PokemonListResponse, PokemonDetails } from "../types/pokemon";
+import type {
+  PokemonListResponse,
+  PokemonDetails,
+  PokemonSpecies,
+  PokemonEvolutionChain,
+} from "../types/pokemon";
 
 export async function getPokemonList(
   url: string,
@@ -36,6 +41,38 @@ export async function getPokemonDetails(
   }
 
   const data: PokemonDetails = await res.json();
+
+  return data;
+}
+
+export async function getPokemonSpecies(
+  id: number,
+  signal?: AbortSignal,
+): Promise<PokemonSpecies> {
+  const res = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${id}`, {
+    signal,
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch Pokémon species");
+  }
+
+  const data: PokemonSpecies = await res.json();
+
+  return data;
+}
+
+export async function getPokemonEvolutionChain(
+  url: string,
+  signal?: AbortSignal,
+): Promise<PokemonEvolutionChain> {
+  const res = await fetch(url, { signal });
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch Pokémon evolution chain");
+  }
+
+  const data: PokemonEvolutionChain = await res.json();
 
   return data;
 }

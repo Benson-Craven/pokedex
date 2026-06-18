@@ -1,4 +1,5 @@
 [PLANS]
+- 2026-06-18T13:09Z [USER] User chose evolution chain viewer as the next coaching-first feature; no server startup.
 - 2026-06-18T13:03Z [USER] User wants coaching-first work on a new feature; no server startup. Feature not chosen yet.
 - 2026-06-17T08:30Z [USER] User wants coaching-first implementation guidance for random team from favourites; no server startup.
 - 2026-06-16T11:34Z [USER] User wants coaching-first guidance for choosing/starting a new feature; no server startup.
@@ -25,6 +26,7 @@
 - 2026-06-16T11:08Z [USER] User added API-boundary ID derivation for Pokemon list results and asked for verification.
 
 [DECISIONS]
+- 2026-06-18T13:56Z [USER] For evolution-chain null selection, UI can avoid rendering the chain when no Pokemon is selected; hook does not need to synchronously clear all returned state in the `pokemonId === null` effect branch.
 - 2026-06-11T00:00Z [ASSUMPTION] Treat the request as coaching/analysis only; no app code edits are needed.
 - 2026-06-11T22:23Z [USER] User requested AGENTS.md canary functionality: assistant replies should include their name so instruction drift is visible.
 - 2026-06-11T22:23Z [ASSUMPTION] Use `Benson` as the canary name based on workspace username `bensoncraven`.
@@ -32,6 +34,27 @@
 - 2026-06-13T13:01Z [USER] User requested future learning-oriented feature work avoid assistant-written implementation and avoid starting dev/preview/web servers or browser verification unless explicitly asked.
 
 [PROGRESS]
+- 2026-06-18T14:33Z [CODE] Implemented evolution sprites: `usePokemonEvolutionChain` now fetches Pokemon details for straight-line evolution names, returns `evolutionPokemon` display items, and `PokemonEvolutionChainPanel` renders sprite/name cards. `App.tsx` passes `evolutionPokemon`; `EvolutionPokemon` type added to `src/types/pokemon.ts`.
+- 2026-06-18T14:23Z [USER] User typed `getEvolutionNames(chain: PokemonEvolutionChain | null)` in `PokemonEvolutionChainPanel.tsx`.
+- 2026-06-18T14:21Z [USER] User renamed component file to `src/components/PokemonEvolutionChainPanel.tsx`, updated `App.tsx` import, and extracted `getEvolutionNames(chain)` helper; helper parameter is currently implicitly `any`.
+- 2026-06-18T14:18Z [USER] User updated `PokemonEvolutionChainPanel` to render `names.join(" -> ")`, so straight-line evolution names are now visible.
+- 2026-06-18T14:17Z [USER] User added straight-line evolution traversal in `PokemonEvolutionChainPanel` using `names: string[]`, `current = evolutionChain?.chain`, and `while (current)`; names are collected but not rendered yet.
+- 2026-06-18T14:13Z [USER] User updated `PokemonEvolutionChainPanel` to render the root species name via `evolutionChain.chain.species.name`.
+- 2026-06-18T14:12Z [USER] User guarded `PokemonEvolutionChainPanel` rendering in `App.tsx` with `selectedPokemon && (...)`, so the panel only appears when a Pokemon is selected.
+- 2026-06-18T14:11Z [USER] User renamed placeholder component to `PokemonEvolutionChainPanel`, imported it in `App.tsx`, and renders it with evolution hook values near the selected Pokemon card.
+- 2026-06-18T14:09Z [USER] User implemented placeholder `src/components/PokemonEvolutionChain.tsx` component and imported it in `App.tsx`; component name currently collides with `PokemonEvolutionChain` type name from `src/types/pokemon.ts`.
+- 2026-06-18T14:04Z [USER] User created `src/components/PokemonEvolutionChain.tsx` with `PokemonEvolutionChainProps` only, and temporarily reads evolution hook values with `console.log` in `App.tsx`; component render/export not implemented yet.
+- 2026-06-18T14:00Z [USER] User imported `usePokemonEvolutionChain` in `src/App.tsx` and calls it with `selectedPokemon?.id ?? null`; returned values are destructured but not rendered/read yet.
+- 2026-06-18T13:58Z [USER] User added `return` to the `pokemonId === null` branch in `usePokemonEvolutionChain`, so the effect aborts and stops before fetching with a null ID.
+- 2026-06-18T13:57Z [USER] User replaced null-branch state resets in `usePokemonEvolutionChain` with abort only; lint passes, but branch lacks `return`, so code still falls through with `pokemonId: number | null`.
+- 2026-06-18T13:55Z [CODE] Assistant reverted its own patch to `src/hooks/usePokemonEvolutionChain.ts`, restoring the user's null-branch state resets and plain returned hook state; continue coaching-first without assistant-authored implementation.
+- 2026-06-18T13:50Z [USER] User revised `usePokemonEvolutionChain` to accept `pokemonId: number | null`, import species/evolution API functions, and fetch species then chain in a `[pokemonId]` effect; hook still lacks a returned state object and has type/narrowing issues.
+- 2026-06-18T13:40Z [USER] User started `src/hooks/usePokemonEvolutionChain.ts`; current version stores `EvolutionChainLink | null`, defines an unused `fetchEvolutionChain(url)`, and only fetches the evolution-chain URL rather than deriving it from species via selected Pokemon ID.
+- 2026-06-18T13:28Z [USER] User fixed `getPokemonSpecies` endpoint string to one line; evolution-chain milestone 2 API functions are now structurally complete.
+- 2026-06-18T13:27Z [USER] User completed `getPokemonSpecies` body and `getPokemonEvolutionChain`; `npm run lint` passes, but species URL string currently contains a newline/spaces inside the template literal and needs correction before runtime use.
+- 2026-06-18T13:26Z [USER] User started evolution-chain milestone 2 in `src/api/pokemon.ts`: imported species/evolution types, implemented `getPokemonEvolutionChain`, and left `getPokemonSpecies` as an empty stub needing completion.
+- 2026-06-18T13:17Z [USER] User corrected evolution-chain milestone 1: `PokemonListItem` remains list-shaped, and separate `PokemonSpecies`, `EvolutionChainLink`, and `PokemonEvolutionChain` types were added to `src/types/pokemon.ts`.
+- 2026-06-18T13:15Z [USER] User attempted evolution-chain milestone 1 by adding evolution fields to `PokemonListItem`; needs correction because list items should remain `{ id, name, url }` and species/evolution responses need separate types.
 - 2026-06-18T11:59Z [USER] User removed stale `filteredPokemon` and old commented `visiblePokemon` block from `src/App.tsx` after the favorites-source refactor.
 - 2026-06-18T11:55Z [USER] User updated favorites list derivation in `src/App.tsx` to use `favouritePokemonItems`, `basePokemon`, `searchablePokemon`, and `visiblePokemon`, and hid pagination unless `pokemonListFilter === "all"`.
 - 2026-06-18T11:48Z [USER] User removed redundant `&& favouritePokemon` truthiness check from the favorite max-count UI condition in `src/App.tsx`.
@@ -94,6 +117,12 @@
 - 2026-06-16T11:08Z [USER] User updated `src/api/pokemon.ts` so `getPokemonList` maps raw list results and derives `id` from each Pokemon URL; `PokemonListItem` now includes `id`.
 
 [DISCOVERIES]
+- 2026-06-18T14:33Z [CODE] Evolution sprite implementation still follows the existing straight-line helper and uses only `evolves_to[0]`; branching chains such as Eevee are intentionally not handled yet.
+- 2026-06-18T14:11Z [CODE] `PokemonEvolutionChainPanel` currently renders unconditionally in `App.tsx`; because user chose UI should avoid rendering the chain with no selected Pokemon, next step should guard it with `selectedPokemon && (...)`.
+- 2026-06-18T14:09Z [CODE] Naming a component `PokemonEvolutionChain` collides with the exported type `PokemonEvolutionChain`; build reports TS1485 under `verbatimModuleSyntax`. Prefer a component name like `PokemonEvolutionChainPanel` or rename the type to `PokemonEvolutionChainResponse`.
+- 2026-06-18T13:50Z [CODE] `usePokemonEvolutionChain` should store `PokemonEvolutionChain | null`, not `EvolutionChainLink | null`, because `getPokemonEvolutionChain` returns the wrapper response. Capture a non-null local ID after the null guard so TypeScript can narrow inside the nested async function.
+- 2026-06-18T13:40Z [CODE] Evolution hook should accept `pokemonId: number | null` and use `getPokemonSpecies` followed by `getPokemonEvolutionChain`; otherwise `App.tsx` would need to know species/evolution URL plumbing.
+- 2026-06-18T13:27Z [CODE] `getPokemonSpecies` currently calls fetch with a multiline template literal: `https://pokeapi.co/api/v2/\n    pokemon-species/${id}`. Lint passes, but runtime fetch will target a malformed URL; keep endpoint string on one line.
 - 2026-06-18T11:49Z [USER] User noticed favorites list filter only shows favorites from the current paginated `pokemon` page because `visiblePokemon` filters `filteredPokemon`, which uses `pokemon` when not searching; fix should use all-pokedex-derived `favouritePokemonItems` as the favorites source.
 - 2026-06-16T11:37Z [CODE] For random-team-from-favorites, `useFavouritePokemon` stores only favorite IDs while `useSquad` stores full `PokemonDetails`; generating a favorite squad should derive favorite list items from `pokedex`/IDs and fetch details rather than relying only on currently loaded detail objects.
 - 2026-06-11T00:00Z [CODE] App is a Vite React 19 TypeScript project. `App.tsx` orchestrates custom hooks, derived state, search filtering, squad management, and rendering.
@@ -119,6 +148,24 @@
 - 2026-06-16T11:08Z [CODE] Supersedes 2026-06-16T11:03Z discovery: `getPokemonList` now derives numeric `id` from URL before storing list/pokedex results, so list favorite lookups compare against the same numeric IDs stored by favorite toggles.
 
 [OUTCOMES]
+- 2026-06-18T14:33Z [TOOL] `npm run lint` and `npm run build` pass after evolution sprite/name card implementation; no server startup.
+- 2026-06-18T14:23Z [TOOL] `npm run build` and `npm run lint` pass after typing `getEvolutionNames`; no server startup.
+- 2026-06-18T14:21Z [TOOL] `npm run lint` passes after extracting `getEvolutionNames`; `npm run build` fails with TS7006 because helper parameter `chain` implicitly has `any` type. No server startup.
+- 2026-06-18T14:18Z [TOOL] `npm run lint` and `npm run build` pass after rendering collected straight-line evolution names; no server startup.
+- 2026-06-18T14:17Z [TOOL] `npm run lint` and `npm run build` pass after adding traversal loop, but UI still renders only `evolutionChain.chain.species.name` and does not consume `names`. No server startup.
+- 2026-06-18T14:13Z [TOOL] `npm run lint` and `npm run build` pass after rendering root evolution species name; no server startup.
+- 2026-06-18T14:12Z [TOOL] `npm run lint` and `npm run build` pass after adding selected-Pokemon render guard around `PokemonEvolutionChainPanel`; no server startup.
+- 2026-06-18T14:11Z [TOOL] `npm run build` and `npm run lint` pass after renaming/rendering `PokemonEvolutionChainPanel`; no server startup.
+- 2026-06-18T14:09Z [TOOL] `npm run lint` passes after placeholder evolution-chain component; `npm run build` fails with TS1485 because `PokemonEvolutionChain` import in `App.tsx` conflicts with a type-only declaration of the same name. No server startup.
+- 2026-06-18T14:04Z [TOOL] `npm run lint` and `npm run build` fail because `PokemonEvolutionChainProps` is declared but unused in `src/components/PokemonEvolutionChain.tsx`. No server startup.
+- 2026-06-18T14:00Z [TOOL] `npm run lint` and `npm run build` fail in `src/App.tsx` because `evolutionChain`, `isEvolutionChainLoading`, and `evolutionChainError` are destructured but unused. No server startup.
+- 2026-06-18T13:58Z [TOOL] `npm run build` and `npm run lint` pass after adding `return` to the evolution hook null branch; no server startup.
+- 2026-06-18T13:57Z [TOOL] `npm run lint` passes after null-branch state reset removal; `npm run build` fails in `usePokemonEvolutionChain.ts` because `getPokemonSpecies` receives `number | null` after missing `return` in null branch. No server startup.
+- 2026-06-18T13:50Z [TOOL] `npm run lint` fails in `usePokemonEvolutionChain` because returned state values are not read and synchronous null-guard state clearing in the effect triggers `react-hooks/set-state-in-effect`; `npm run build` also fails because `pokemonId` is still `number | null` inside nested async code and `PokemonEvolutionChain` is assigned to `EvolutionChainLink | null` state. No server startup.
+- 2026-06-18T13:40Z [TOOL] `npm run lint` fails in `src/hooks/usePokemonEvolutionChain.ts` because `fetchEvolutionChain` is defined but never used; no server startup.
+- 2026-06-18T13:28Z [TOOL] `npm run lint` passes after fixing `getPokemonSpecies` endpoint string; no server startup.
+- 2026-06-18T13:27Z [TOOL] `npm run lint` passes after milestone 2 API functions, but runtime species URL bug remains; no server startup.
+- 2026-06-18T13:17Z [TOOL] `npm run lint` passes after evolution-chain response types were added; no server startup.
 - 2026-06-18T11:59Z [TOOL] `npm run lint` and `npm run build` pass after removing stale `filteredPokemon`; no server startup. Supersedes the 2026-06-18T11:55Z failed-check note.
 - 2026-06-18T11:55Z [TOOL] `npm run lint` and `npm run build` fail after favorites-source fix because stale `filteredPokemon` in `src/App.tsx` is declared but never read.
 - 2026-06-18T11:48Z [TOOL] `npm run lint` and `npm run build` pass after removing redundant favorite array truthiness check; no server startup.
