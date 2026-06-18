@@ -1,4 +1,6 @@
 [PLANS]
+- 2026-06-18T13:03Z [USER] User wants coaching-first work on a new feature; no server startup. Feature not chosen yet.
+- 2026-06-17T08:30Z [USER] User wants coaching-first implementation guidance for random team from favourites; no server startup.
 - 2026-06-16T11:34Z [USER] User wants coaching-first guidance for choosing/starting a new feature; no server startup.
 - 2026-06-16T11:12Z [USER] User chose favorites filter as the next coaching-first feature; no server startup.
 - 2026-06-11T00:00Z [USER] User asked for a learning-first hypothesis about what to learn next in React using this Pokemon web app.
@@ -30,6 +32,12 @@
 - 2026-06-13T13:01Z [USER] User requested future learning-oriented feature work avoid assistant-written implementation and avoid starting dev/preview/web servers or browser verification unless explicitly asked.
 
 [PROGRESS]
+- 2026-06-18T11:59Z [USER] User removed stale `filteredPokemon` and old commented `visiblePokemon` block from `src/App.tsx` after the favorites-source refactor.
+- 2026-06-18T11:55Z [USER] User updated favorites list derivation in `src/App.tsx` to use `favouritePokemonItems`, `basePokemon`, `searchablePokemon`, and `visiblePokemon`, and hid pagination unless `pokemonListFilter === "all"`.
+- 2026-06-18T11:48Z [USER] User removed redundant `&& favouritePokemon` truthiness check from the favorite max-count UI condition in `src/App.tsx`.
+- 2026-06-17T15:24Z [USER] User implemented `PokemonList` optional `emptyMessage` prop and passes a favorites-specific empty message from `App.tsx` when `pokemonListFilter === "favourites"`.
+- 2026-06-17T15:11Z [USER] User implemented favorite count/max UI in `src/App.tsx`, surfaced `favouritePokemon` and `MAX_FAV_POKEMON` from `useFavouritePokemon`, styled `Random Favourites`, and added navigation comments in `App.tsx`.
+- 2026-06-17T10:50Z [USER] User implemented random team from favourites in `src/App.tsx` by extracting `generateRandomSquadFromItems`, deriving `favouritePokemonItems`, adding `handleGenerateRandomFavouriteSquad`, and rendering a `Random Favourites` button.
 - 2026-06-16T11:12Z [USER] User implemented favorites list filter in `src/App.tsx` with `PokemonListFilter`, `pokemonListFilter` state, derived `visiblePokemon`, a select control, and `PokemonList` rendering from `visiblePokemon`.
 - 2026-06-11T00:00Z [TOOL] Inspected project structure plus main React files: App, hooks, components, API, types, styling, and package scripts.
 - 2026-06-12T22:08Z [CODE] Implemented squad-aware list rendering in `PokemonList.tsx` by adding `isPokemonInSquad` prop typing and using block-bodied `map` to derive `isInSquad` per item.
@@ -86,6 +94,7 @@
 - 2026-06-16T11:08Z [USER] User updated `src/api/pokemon.ts` so `getPokemonList` maps raw list results and derives `id` from each Pokemon URL; `PokemonListItem` now includes `id`.
 
 [DISCOVERIES]
+- 2026-06-18T11:49Z [USER] User noticed favorites list filter only shows favorites from the current paginated `pokemon` page because `visiblePokemon` filters `filteredPokemon`, which uses `pokemon` when not searching; fix should use all-pokedex-derived `favouritePokemonItems` as the favorites source.
 - 2026-06-16T11:37Z [CODE] For random-team-from-favorites, `useFavouritePokemon` stores only favorite IDs while `useSquad` stores full `PokemonDetails`; generating a favorite squad should derive favorite list items from `pokedex`/IDs and fetch details rather than relying only on currently loaded detail objects.
 - 2026-06-11T00:00Z [CODE] App is a Vite React 19 TypeScript project. `App.tsx` orchestrates custom hooks, derived state, search filtering, squad management, and rendering.
 - 2026-06-11T00:00Z [CODE] Hooks demonstrate async fetch state, `AbortController`, `useRef`, `useCallback`, lazy `useState`, and localStorage persistence.
@@ -110,6 +119,12 @@
 - 2026-06-16T11:08Z [CODE] Supersedes 2026-06-16T11:03Z discovery: `getPokemonList` now derives numeric `id` from URL before storing list/pokedex results, so list favorite lookups compare against the same numeric IDs stored by favorite toggles.
 
 [OUTCOMES]
+- 2026-06-18T11:59Z [TOOL] `npm run lint` and `npm run build` pass after removing stale `filteredPokemon`; no server startup. Supersedes the 2026-06-18T11:55Z failed-check note.
+- 2026-06-18T11:55Z [TOOL] `npm run lint` and `npm run build` fail after favorites-source fix because stale `filteredPokemon` in `src/App.tsx` is declared but never read.
+- 2026-06-18T11:48Z [TOOL] `npm run lint` and `npm run build` pass after removing redundant favorite array truthiness check; no server startup.
+- 2026-06-17T15:24Z [TOOL] `npm run lint` and `npm run build` pass after favorites-specific empty list message; no server startup.
+- 2026-06-17T15:11Z [TOOL] `npm run lint` and `npm run build` pass after favorite count/max UI; no server startup.
+- 2026-06-17T10:50Z [TOOL] `npm run lint` and `npm run build` pass after random team from favourites; no server startup.
 - 2026-06-16T11:12Z [TOOL] `npm run lint` and `npm run build` pass after favorites list filter; no server startup.
 - 2026-06-11T00:00Z [ASSUMPTION] Final response should map specific React learning topics to this repo's existing files and suggest small exercises.
 - 2026-06-11T22:23Z [CODE] Added `Canary phrase` section to `AGENTS.md`; it requires `Benson` in every substantive assistant reply and avoids inserting it into generated artifacts unless requested.

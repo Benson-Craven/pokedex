@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 
 const FAVOURITE_POKEMON_STORAGE_KEY = "favourite-pokemon";
 
+const MAX_FAV_POKEMON = 6;
+
 export function useFavouritePokemon() {
   const [favouritePokemon, setFavouritePokemon] = useState<number[]>(() => {
     const savedFavourite = localStorage.getItem(FAVOURITE_POKEMON_STORAGE_KEY);
@@ -34,7 +36,7 @@ export function useFavouritePokemon() {
         return currentFaves.filter((pokemon) => pokemon !== pokemonToFavourite);
       }
 
-      if (currentFaves.length >= 3) {
+      if (currentFaves.length >= MAX_FAV_POKEMON) {
         return currentFaves;
       }
 
@@ -50,5 +52,6 @@ export function useFavouritePokemon() {
     favouritePokemon,
     toggleFavouritePokemon,
     isFavouritePokemon,
+    MAX_FAV_POKEMON,
   };
 }

@@ -8,6 +8,7 @@ type PokemonListProps = {
   onSelectPokemon: (url: string) => void;
   isPokemonInSquad: (url: string) => boolean;
   isPokemonFavourite: (pokemonId: number) => boolean;
+  emptyMessage?: string;
 };
 
 const PokemonList = ({
@@ -18,6 +19,7 @@ const PokemonList = ({
   onSelectPokemon,
   isPokemonInSquad,
   isPokemonFavourite,
+  emptyMessage,
 }: PokemonListProps) => {
   return (
     <div className="flex w-full max-w-2xl flex-col gap-5">
@@ -27,7 +29,7 @@ const PokemonList = ({
         ) : isSearching && isPokedexLoading ? (
           <p>Loading Pokédex...</p>
         ) : pokemon.length === 0 ? (
-          <p>Try another Pokémon...</p>
+          <p>{emptyMessage ?? "Try another Pokémon..."}</p>
         ) : (
           pokemon.map((pokemonItem) => {
             const isInSquad = isPokemonInSquad(pokemonItem.url);

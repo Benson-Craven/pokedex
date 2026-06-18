@@ -35,6 +35,7 @@ const RECOMMENDED_COVERAGE_TYPES = [
   "fairy",
 ];
 
+// HELPER FUNCTIONS
 function isPokemonInSquad(pokemonId: number, squadPokemon: PokemonDetails[]) {
   return squadPokemon.some((pokemon) => pokemon.id === pokemonId);
 }
@@ -208,6 +209,7 @@ function getRandomPokemonItems(pokedex: PokemonListItem[], count: number) {
 // TODO APP STARTS HERE
 
 function App() {
+  // CUSTOM HOOKS
   const {
     pokemon,
     isListLoading,
@@ -238,7 +240,12 @@ function App() {
     setSelectedPokemon,
   } = usePokemonDetails();
 
-  const { toggleFavouritePokemon, isFavouritePokemon } = useFavouritePokemon();
+  const {
+    toggleFavouritePokemon,
+    isFavouritePokemon,
+    favouritePokemon,
+    MAX_FAV_POKEMON,
+  } = useFavouritePokemon();
 
   const isSelectedPokemonFavourite = selectedPokemon
     ? isFavouritePokemon(selectedPokemon.id)
@@ -256,6 +263,8 @@ function App() {
     return isPokemonInSquad(pokemonId, squadPokemon);
   }
 
+  // STATE SETTING
+
   const [searchPokemon, setSearchPokemon] = useState<string>("");
 
   const [squadSortMode, setSquadSortMode] = useState<SquadSortMode>("added");
@@ -264,17 +273,26 @@ function App() {
 
   const [comparisonPokemonA, setComparisonPokemonA] =
     useState<PokemonDetails | null>(null);
+
   const [comparisonPokemonB, setComparisonPokemonB] =
     useState<PokemonDetails | null>(null);
 
   const [isRandomSquadLoading, setIsRandomSquadLoading] = useState(false);
+
   const [randomSquadError, setRandomSquadError] = useState<Error | null>(null);
+
   const randomSquadAbortController = useRef<AbortController | null>(null);
 
   const [pokemonListFilter, setPokemonListFilter] =
     useState<PokemonListFilter>("all");
 
   async function handleGenerateRandomSquad() {
+    await generateRandomSquadFromItems(pokedex);
+  }
+
+  async function generateRandomSquadFromItems(
+    candidatePokemonItems: PokemonListItem[],
+  ) {
     randomSquadAbortController.current?.abort();
     const controller = new AbortController();
     randomSquadAbortController.current = controller;
@@ -283,7 +301,10 @@ function App() {
     setRandomSquadError(null);
 
     try {
-      const randomPokemonItems = getRandomPokemonItems(pokedex, MAX_SQUAD_SIZE);
+      const randomPokemonItems = getRandomPokemonItems(
+        candidatePokemonItems,
+        MAX_SQUAD_SIZE,
+      );
 
       const randomPokemonDetails = await Promise.all(
         randomPokemonItems.map((pokemonItem) =>
@@ -306,6 +327,10 @@ function App() {
         setIsRandomSquadLoading(false);
       }
     }
+  }
+
+  async function handleGenerateRandomFavouriteSquad() {
+    await generateRandomSquadFromItems(favouritePokemonItems);
   }
 
   useEffect(() => {
@@ -332,18 +357,8 @@ function App() {
     return <p>Error! {listError.message}</p>;
   }
 
+  // DERIVED VALUES
   const isSearching = searchPokemon.trim() !== "";
-
-  const filteredPokemon = isSearching
-    ? filterPokemonByName(pokedex, searchPokemon)
-    : pokemon;
-
-  const visiblePokemon =
-    pokemonListFilter === "favourites"
-      ? filteredPokemon.filter((pokemonItem) =>
-          isFavouritePokemon(pokemonItem.id),
-        )
-      : filteredPokemon;
 
   const emptySquadSlots = Array.from({
     length: MAX_SQUAD_SIZE - squadPokemon.length,
@@ -378,7 +393,9 @@ function App() {
       : null;
 
   const fastestPokemon = getBestPokemonByStat(squadPokemon, "speed");
+
   const strongestAttackPokemon = getBestPokemonByStat(squadPokemon, "attack");
+
   const strongestDefensePokemon = getBestPokemonByStat(squadPokemon, "defense");
 
   const comparisonPokemonATotalBaseStats = comparisonPokemonA
@@ -390,6 +407,20 @@ function App() {
     : 0;
 
   const missingCoverageTypes = getMissingCoverageTypes(uniquePokemonTypes);
+
+  const favouritePokemonItems = pokedex.filter((pokemonItem) =>
+    isFavouritePokemon(pokemonItem.id),
+  );
+
+  const basePokemon =
+    pokemonListFilter === "favourites" ? favouritePokemonItems : pokemon;
+
+  const searchablePokemon =
+    pokemonListFilter === "favourites" ? favouritePokemonItems : pokedex;
+
+  const visiblePokemon = isSearching
+    ? filterPokemonByName(searchablePokemon, searchPokemon)
+    : basePokemon;
 
   return (
     <main className="min-h-screen bg-pokemon-bg text-pokemon-black ">
@@ -495,6 +526,18 @@ function App() {
                 {isRandomSquadLoading ? "Generating..." : "Random Team"}
               </button>
               {randomSquadError && <p>Error! {randomSquadError.message}</p>}
+              <button
+                type="button"
+                className="w-fit cursor-pointer rounded-full border-2 border-pokemon-dark-blue bg-pokemon-yellow px-4 py-2 font-black text-pokemon-dark-blue shadow-[2px_2px_0_#003a70] transition disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-600"
+                onClick={handleGenerateRandomFavouriteSquad}
+                disabled={
+                  isPokedexLoading ||
+                  favouritePokemonItems.length === 0 ||
+                  isRandomSquadLoading
+                }
+              >
+                Random Favourites
+              </button>
             </div>
           </div>
 
@@ -551,17 +594,28 @@ function App() {
               sharedComparisonTypes={sharedComparisonTypes}
             />
           )}
-          <select
-            value={pokemonListFilter}
-            onChange={(event) =>
-              setPokemonListFilter(event.target.value as PokemonListFilter)
-            }
-            className="rounded-full border-2 border-pokemon-dark-blue bg-white px-3 py-2 font-black shadow-[2px_2px_0_#003a70] cursor-pointer"
-          >
-            <option value="all">All</option>
+          <div className="flex gap-4">
+            <select
+              value={pokemonListFilter}
+              onChange={(event) =>
+                setPokemonListFilter(event.target.value as PokemonListFilter)
+              }
+              className="rounded-full border-2 border-pokemon-dark-blue bg-white px-3 py-2 font-black shadow-[2px_2px_0_#003a70] cursor-pointer"
+            >
+              <option value="all">All</option>
 
-            <option value="favourites">Favourites</option>
-          </select>
+              <option value="favourites">Favourites</option>
+            </select>
+            {favouritePokemon.length >= MAX_FAV_POKEMON ? (
+              <p className=" flex items-center gap-2 text-sm font-black">
+                Faves Maxed
+              </p>
+            ) : (
+              <p className=" flex items-center gap-2 text-sm font-black">
+                {favouritePokemon.length} / {MAX_FAV_POKEMON} Favourites
+              </p>
+            )}
+          </div>
 
           <PokemonList
             pokemon={visiblePokemon}
@@ -571,9 +625,14 @@ function App() {
             onSelectPokemon={fetchPokemonDetails}
             isPokemonInSquad={isPokemonUrlInSquad}
             isPokemonFavourite={isFavouritePokemon}
+            emptyMessage={
+              pokemonListFilter === "favourites"
+                ? "No favourite Pokémon yet"
+                : undefined
+            }
           />
 
-          {!isSearching && (
+          {!isSearching && pokemonListFilter === "all" && (
             <div className="flex w-full gap-3">
               <button
                 disabled={!previousUrl || isListLoading}
